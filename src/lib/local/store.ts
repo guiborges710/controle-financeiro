@@ -1,0 +1,659 @@
+import "server-only";
+
+import { randomUUID } from "crypto";
+import fs from "fs/promises";
+import path from "path";
+import { LOCAL_DEMO_USER } from "@/lib/auth/constants";
+import type {
+  Expense,
+  ExpenseType,
+  Ingredient,
+  MeasureUnit,
+  Recipe,
+  RecipeLine,
+  Sale,
+  SellableProduct,
+} from "@/lib/types/business";
+import type { BusinessProfile, Transaction, Universe } from "@/lib/types";
+
+const STORE_DIR = path.join(process.cwd(), "data");
+const STORE_FILE = path.join(STORE_DIR, "store.json");
+
+export type LocalStore = {
+  businessProfile: BusinessProfile | null;
+  transactions: Transaction[];
+  ingredients: Ingredient[];
+  sellableProducts: SellableProduct[];
+  recipes: Recipe[];
+  sales: Sale[];
+  expenses: Expense[];
+};
+
+function seedBusinessEntities(now: string, month: string) {
+  const ingFarinha: Ingredient = {
+    id: "ing-farinha",
+    name: "Farinha de trigo",
+    unit: "g",
+    unit_cost: 0.008,
+    updated_at: now,
+  };
+  const ingAcucar: Ingredient = {
+    id: "ing-acucar",
+    name: "Açúcar",
+    unit: "g",
+    unit_cost: 0.006,
+    updated_at: now,
+  };
+  const ingOvos: Ingredient = {
+    id: "ing-ovos",
+    name: "Ovos",
+    unit: "unidade",
+    unit_cost: 0.75,
+    updated_at: now,
+  };
+  const ingMacarrao: Ingredient = {
+    id: "ing-macarrao",
+    name: "Macarrão",
+    unit: "g",
+    unit_cost: 0.012,
+    updated_at: now,
+  };
+  const ingLeite: Ingredient = {
+    id: "ing-leite",
+    name: "Leite",
+    unit: "ml",
+    unit_cost: 0.004,
+    updated_at: now,
+  };
+  const ingChocolate: Ingredient = {
+    id: "ing-chocolate",
+    name: "Chocolate em pó",
+    unit: "g",
+    unit_cost: 0.035,
+    updated_at: now,
+  };
+
+  const ingredients = [
+    ingFarinha,
+    ingAcucar,
+    ingOvos,
+    ingMacarrao,
+    ingLeite,
+    ingChocolate,
+  ];
+
+  const prodBrigadeiro: SellableProduct = {
+    id: "prod-brigadeiro",
+    name: "Caixa de brigadeiros",
+    size: "12 unidades",
+    sale_price: 36,
+    recipe_id: "rec-brigadeiro",
+    created_at: now,
+  };
+  const prodMacarrao: SellableProduct = {
+    id: "prod-macarrao",
+    name: "Marmita de macarrão",
+    size: "500 g",
+    sale_price: 22,
+    recipe_id: "rec-macarrao",
+    created_at: now,
+  };
+  const prodSopa: SellableProduct = {
+    id: "prod-sopa",
+    name: "Sopa do dia",
+    size: "500 ml",
+    sale_price: 18,
+    recipe_id: "rec-sopa",
+    created_at: now,
+  };
+
+  const sellableProducts = [prodBrigadeiro, prodMacarrao, prodSopa];
+
+  const recipes: Recipe[] = [
+    {
+      id: "rec-brigadeiro",
+      name: "Brigadeiro (12 un)",
+      sellable_product_id: prodBrigadeiro.id,
+      yield_quantity: 1,
+      lines: [
+        { ingredient_id: ingChocolate.id, quantity: 200, unit: "g" },
+        { ingredient_id: ingAcucar.id, quantity: 150, unit: "g" },
+        { ingredient_id: ingLeite.id, quantity: 200, unit: "ml" },
+      ],
+      created_at: now,
+    },
+    {
+      id: "rec-macarrao",
+      name: "Macarrão com molho",
+      sellable_product_id: prodMacarrao.id,
+      yield_quantity: 1,
+      lines: [
+        { ingredient_id: ingMacarrao.id, quantity: 300, unit: "g" },
+        { ingredient_id: ingOvos.id, quantity: 1, unit: "unidade" },
+        { ingredient_id: ingLeite.id, quantity: 100, unit: "ml" },
+      ],
+      created_at: now,
+    },
+    {
+      id: "rec-sopa",
+      name: "Sopa cremosa",
+      sellable_product_id: prodSopa.id,
+      yield_quantity: 1,
+      lines: [
+        { ingredient_id: ingLeite.id, quantity: 400, unit: "ml" },
+        { ingredient_id: ingFarinha.id, quantity: 50, unit: "g" },
+        { ingredient_id: ingOvos.id, quantity: 1, unit: "unidade" },
+      ],
+      created_at: now,
+    },
+  ];
+
+  const sales: Sale[] = [
+    {
+      id: randomUUID(),
+      product_id: prodBrigadeiro.id,
+      quantity: 2,
+      unit_price: 36,
+      total: 72,
+      occurred_at: `${month}-10`,
+      created_at: now,
+    },
+    {
+      id: randomUUID(),
+      product_id: prodMacarrao.id,
+      quantity: 5,
+      unit_price: 22,
+      total: 110,
+      occurred_at: `${month}-14`,
+      created_at: now,
+    },
+    {
+      id: randomUUID(),
+      product_id: prodSopa.id,
+      quantity: 3,
+      unit_price: 18,
+      total: 54,
+      occurred_at: `${month}-18`,
+      created_at: now,
+    },
+  ];
+
+  const expenses: Expense[] = [
+    {
+      id: randomUUID(),
+      type: "insumo",
+      description: "Compra farinha 5 kg",
+      amount: 40,
+      occurred_at: `${month}-05`,
+      ingredient_id: ingFarinha.id,
+      ingredient_name: ingFarinha.name,
+      ingredient_unit: ingFarinha.unit,
+      quantity_purchased: 5000,
+      unit_cost: 0.008,
+      created_at: now,
+    },
+    {
+      id: randomUUID(),
+      type: "insumo",
+      description: "Compra macarrão 3 kg",
+      amount: 36,
+      occurred_at: `${month}-06`,
+      ingredient_id: ingMacarrao.id,
+      ingredient_name: ingMacarrao.name,
+      ingredient_unit: ingMacarrao.unit,
+      quantity_purchased: 3000,
+      unit_cost: 0.012,
+      created_at: now,
+    },
+    {
+      id: randomUUID(),
+      type: "gas",
+      description: "Botijão de gás",
+      amount: 110,
+      occurred_at: `${month}-08`,
+      ingredient_id: null,
+      ingredient_name: null,
+      ingredient_unit: null,
+      quantity_purchased: null,
+      unit_cost: null,
+      created_at: now,
+    },
+    {
+      id: randomUUID(),
+      type: "energia",
+      description: "Conta de luz",
+      amount: 185,
+      occurred_at: `${month}-12`,
+      ingredient_id: null,
+      ingredient_name: null,
+      ingredient_unit: null,
+      quantity_purchased: null,
+      unit_cost: null,
+      created_at: now,
+    },
+  ];
+
+  return { ingredients, sellableProducts, recipes, sales, expenses };
+}
+
+function seedStore(): LocalStore {
+  const now = new Date().toISOString();
+  const month = new Date().toISOString().slice(0, 7);
+  const business = seedBusinessEntities(now, month);
+
+  const mk = (
+    universe: Universe,
+    type: "income" | "expense",
+    category_slug: string,
+    amount: number,
+    description: string,
+    day: number,
+  ): Transaction => ({
+    id: randomUUID(),
+    user_id: LOCAL_DEMO_USER.id,
+    universe,
+    type,
+    category_slug,
+    amount,
+    description,
+    occurred_at: `${month}-${String(day).padStart(2, "0")}`,
+    metadata: {},
+    created_at: now,
+  });
+
+  return {
+    businessProfile: {
+      id: randomUUID(),
+      user_id: LOCAL_DEMO_USER.id,
+      industry: "delivery",
+      business_name: "Meu delivery (demo)",
+      config: {},
+      created_at: now,
+      updated_at: now,
+    },
+    transactions: [
+      mk("personal", "income", "salario", 4500, "Salário", 5),
+      mk("personal", "expense", "moradia", 1200, "Aluguel", 8),
+      mk("personal", "expense", "alimentacao", 650, "Mercado", 12),
+    ],
+    ...business,
+  };
+}
+
+function normalizeStore(parsed: Partial<LocalStore>): LocalStore {
+  const base: LocalStore = {
+    businessProfile: parsed.businessProfile ?? null,
+    transactions: parsed.transactions ?? [],
+    ingredients: parsed.ingredients ?? [],
+    sellableProducts: (parsed.sellableProducts ?? []).map((p) => ({
+      ...p,
+      recipe_id: p.recipe_id ?? "",
+    })).filter((p) => p.recipe_id),
+    recipes: parsed.recipes ?? [],
+    sales: parsed.sales ?? [],
+    expenses: (parsed.expenses ?? []).map((e) => ({
+      ...e,
+      ingredient_name: e.ingredient_name ?? null,
+      ingredient_unit: e.ingredient_unit ?? null,
+    })),
+  };
+
+  if (base.ingredients.length === 0 && base.sellableProducts.length === 0) {
+    const now = new Date().toISOString();
+    const month = new Date().toISOString().slice(0, 7);
+    const business = seedBusinessEntities(now, month);
+    return { ...base, ...business };
+  }
+
+  return base;
+}
+
+async function readStore(): Promise<LocalStore> {
+  try {
+    const raw = await fs.readFile(STORE_FILE, "utf-8");
+    const parsed = JSON.parse(raw) as Partial<LocalStore>;
+    const normalized = normalizeStore(parsed);
+    if (
+      (parsed.ingredients?.length ?? 0) === 0 &&
+      normalized.ingredients.length > 0
+    ) {
+      await writeStore(normalized);
+    }
+    return normalized;
+  } catch (err) {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code !== "ENOENT") throw err;
+    const seeded = seedStore();
+    await writeStore(seeded);
+    return seeded;
+  }
+}
+
+async function writeStore(store: LocalStore): Promise<void> {
+  await fs.mkdir(STORE_DIR, { recursive: true });
+  await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), "utf-8");
+}
+
+function filterByMonth<T extends { occurred_at: string }>(
+  items: T[],
+  yearMonth?: string,
+): T[] {
+  if (!yearMonth) return items;
+  const [y, m] = yearMonth.split("-").map(Number);
+  const start = `${yearMonth}-01`;
+  const lastDay = new Date(y, m, 0).getDate();
+  const end = `${yearMonth}-${String(lastDay).padStart(2, "0")}`;
+  return items.filter((i) => i.occurred_at >= start && i.occurred_at <= end);
+}
+
+// --- Transactions (pessoal) ---
+
+export async function localListTransactions(
+  universe: Universe,
+  yearMonth?: string,
+): Promise<Transaction[]> {
+  const store = await readStore();
+  let list = store.transactions.filter(
+    (t) => t.universe === universe && t.user_id === LOCAL_DEMO_USER.id,
+  );
+  list = filterByMonth(list, yearMonth);
+  return list.sort((a, b) => {
+    const d = b.occurred_at.localeCompare(a.occurred_at);
+    if (d !== 0) return d;
+    return b.created_at.localeCompare(a.created_at);
+  });
+}
+
+export async function localInsertTransaction(
+  input: Omit<Transaction, "id" | "user_id" | "created_at" | "metadata"> & {
+    metadata?: Record<string, unknown>;
+  },
+): Promise<{ error?: string }> {
+  const store = await readStore();
+  store.transactions.push({
+    id: randomUUID(),
+    user_id: LOCAL_DEMO_USER.id,
+    universe: input.universe,
+    type: input.type,
+    category_slug: input.category_slug,
+    amount: input.amount,
+    description: input.description,
+    occurred_at: input.occurred_at,
+    metadata: input.metadata ?? {},
+    created_at: new Date().toISOString(),
+  });
+  await writeStore(store);
+  return {};
+}
+
+export async function localDeleteTransaction(
+  universe: Universe,
+  id: string,
+): Promise<{ error?: string }> {
+  const store = await readStore();
+  const before = store.transactions.length;
+  store.transactions = store.transactions.filter(
+    (t) => !(t.id === id && t.universe === universe),
+  );
+  if (store.transactions.length === before) {
+    return { error: "Lançamento não encontrado" };
+  }
+  await writeStore(store);
+  return {};
+}
+
+export async function localEnsureBusinessProfile(): Promise<void> {
+  const store = await readStore();
+  if (store.businessProfile) return;
+  const now = new Date().toISOString();
+  store.businessProfile = {
+    id: randomUUID(),
+    user_id: LOCAL_DEMO_USER.id,
+    industry: "delivery",
+    business_name: "Meu delivery",
+    config: {},
+    created_at: now,
+    updated_at: now,
+  };
+  await writeStore(store);
+}
+
+export async function localResetDemoData(): Promise<void> {
+  await writeStore(seedStore());
+}
+
+// --- Business entities ---
+
+export async function localGetBusinessData() {
+  return readStore();
+}
+
+export async function localListIngredients(): Promise<Ingredient[]> {
+  const store = await readStore();
+  return store.ingredients.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function localListProducts(): Promise<SellableProduct[]> {
+  const store = await readStore();
+  return store.sellableProducts.sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
+}
+
+export async function localListRecipes(): Promise<Recipe[]> {
+  const store = await readStore();
+  return store.recipes.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function localListSales(yearMonth?: string): Promise<Sale[]> {
+  const store = await readStore();
+  return filterByMonth(store.sales, yearMonth).sort((a, b) =>
+    b.occurred_at.localeCompare(a.occurred_at),
+  );
+}
+
+export async function localListExpenses(yearMonth?: string): Promise<Expense[]> {
+  const store = await readStore();
+  return filterByMonth(store.expenses, yearMonth).sort((a, b) =>
+    b.occurred_at.localeCompare(a.occurred_at),
+  );
+}
+
+function upsertIngredient(
+  store: LocalStore,
+  name: string,
+  unit: MeasureUnit,
+  unitCost: number,
+): Ingredient {
+  const existing = store.ingredients.find(
+    (i) => i.name.toLowerCase() === name.toLowerCase() && i.unit === unit,
+  );
+  const now = new Date().toISOString();
+  if (existing) {
+    existing.unit_cost = unitCost;
+    existing.updated_at = now;
+    return existing;
+  }
+  const created: Ingredient = {
+    id: randomUUID(),
+    name,
+    unit,
+    unit_cost: unitCost,
+    updated_at: now,
+  };
+  store.ingredients.push(created);
+  return created;
+}
+
+export async function localCreateProduct(input: {
+  name: string;
+  size: string;
+  sale_price: number;
+  recipe_id: string;
+}): Promise<{ error?: string }> {
+  if (!input.recipe_id) {
+    return { error: "Selecione uma receita" };
+  }
+
+  const store = await readStore();
+  const recipe = store.recipes.find((r) => r.id === input.recipe_id);
+  if (!recipe) {
+    return { error: "Receita não encontrada" };
+  }
+
+  store.sellableProducts.push({
+    id: randomUUID(),
+    name: input.name,
+    size: input.size,
+    sale_price: input.sale_price,
+    recipe_id: input.recipe_id,
+    created_at: new Date().toISOString(),
+  });
+  await writeStore(store);
+  return {};
+}
+
+export async function localDeleteProduct(id: string): Promise<{ error?: string }> {
+  const store = await readStore();
+  store.sellableProducts = store.sellableProducts.filter((p) => p.id !== id);
+  await writeStore(store);
+  return {};
+}
+
+export async function localCreateRecipe(input: {
+  name: string;
+  yield_quantity: number;
+  lines: RecipeLine[];
+}): Promise<{ error?: string }> {
+  if (input.lines.length === 0) {
+    return { error: "Adicione pelo menos um ingrediente" };
+  }
+  const store = await readStore();
+  store.recipes.push({
+    id: randomUUID(),
+    name: input.name,
+    sellable_product_id: null,
+    yield_quantity: input.yield_quantity,
+    lines: input.lines,
+    created_at: new Date().toISOString(),
+  });
+  await writeStore(store);
+  return {};
+}
+
+export async function localDeleteRecipe(id: string): Promise<{ error?: string }> {
+  const store = await readStore();
+  const hasProducts = store.sellableProducts.some((p) => p.recipe_id === id);
+  if (hasProducts) {
+    return {
+      error: "Remova os produtos vinculados a esta receita antes de excluí-la",
+    };
+  }
+  store.recipes = store.recipes.filter((r) => r.id !== id);
+  await writeStore(store);
+  return {};
+}
+
+export async function localCreateSale(input: {
+  product_id: string;
+  quantity: number;
+  occurred_at: string;
+}): Promise<{ error?: string }> {
+  const store = await readStore();
+  const product = store.sellableProducts.find((p) => p.id === input.product_id);
+  if (!product) return { error: "Produto não encontrado" };
+  if (input.quantity <= 0) return { error: "Quantidade inválida" };
+
+  store.sales.push({
+    id: randomUUID(),
+    product_id: input.product_id,
+    quantity: input.quantity,
+    unit_price: product.sale_price,
+    total: product.sale_price * input.quantity,
+    occurred_at: input.occurred_at,
+    created_at: new Date().toISOString(),
+  });
+  await writeStore(store);
+  return {};
+}
+
+export async function localDeleteSale(id: string): Promise<{ error?: string }> {
+  const store = await readStore();
+  store.sales = store.sales.filter((s) => s.id !== id);
+  await writeStore(store);
+  return {};
+}
+
+export async function localCreateExpense(input: {
+  type: ExpenseType;
+  description: string;
+  amount: number;
+  occurred_at: string;
+  ingredient_name?: string;
+  ingredient_unit?: MeasureUnit;
+  quantity_purchased?: number;
+}): Promise<{ error?: string }> {
+  const store = await readStore();
+  const now = new Date().toISOString();
+  let ingredient_id: string | null = null;
+  let quantity_purchased: number | null = null;
+  let unit_cost: number | null = null;
+
+  if (input.type === "insumo") {
+    if (!input.ingredient_name?.trim()) {
+      return { error: "Informe o nome do insumo" };
+    }
+    if (!input.ingredient_unit) {
+      return { error: "Informe a unidade do insumo" };
+    }
+    if (!input.quantity_purchased || input.quantity_purchased <= 0) {
+      return { error: "Informe a quantidade comprada" };
+    }
+    unit_cost = input.amount / input.quantity_purchased;
+    const ing = upsertIngredient(
+      store,
+      input.ingredient_name.trim(),
+      input.ingredient_unit,
+      unit_cost,
+    );
+    ingredient_id = ing.id;
+    quantity_purchased = input.quantity_purchased;
+  }
+
+  store.expenses.push({
+    id: randomUUID(),
+    type: input.type,
+    description: input.description,
+    amount: input.amount,
+    occurred_at: input.occurred_at,
+    ingredient_id,
+    ingredient_name:
+      input.type === "insumo" ? input.ingredient_name?.trim() ?? null : null,
+    ingredient_unit:
+      input.type === "insumo" ? input.ingredient_unit ?? null : null,
+    quantity_purchased,
+    unit_cost,
+    created_at: now,
+  });
+
+  await writeStore(store);
+  return {};
+}
+
+export async function localDeleteExpense(id: string): Promise<{ error?: string }> {
+  const store = await readStore();
+  store.expenses = store.expenses.filter((e) => e.id !== id);
+  await writeStore(store);
+  return {};
+}
+
+export async function localGetBusinessSummary(yearMonth?: string) {
+  const sales = await localListSales(yearMonth);
+  const expenses = await localListExpenses(yearMonth);
+  const totalSales = sales.reduce((a, s) => a + s.total, 0);
+  const totalExpenses = expenses.reduce((a, e) => a + e.amount, 0);
+  const balance = totalSales - totalExpenses;
+  const marginPercent =
+    totalSales > 0 ? (balance / totalSales) * 100 : null;
+  return { totalSales, totalExpenses, balance, marginPercent };
+}
