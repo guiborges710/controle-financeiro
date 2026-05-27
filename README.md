@@ -47,3 +47,29 @@ Futuramente: formulário para escolher o ramo e configs por ramo (hoje só `deli
 - Next.js 16 + TypeScript + Tailwind
 - Modo local: JSON em disco
 - Modo supabase: Auth + PostgreSQL
+
+## Deploy (Vercel)
+
+Para deixar o projeto pronto para `master` → Vercel (deploy automático):
+
+- Adicione as variáveis de ambiente no Project → Settings → Environment Variables (use `Production` para a branch `master`):
+	- `NEXT_PUBLIC_SUPABASE_URL`
+	- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+	- `SUPABASE_URL` (opcional)
+	- `SUPABASE_ANON_KEY` (opcional)
+	- `SUPABASE_SERVICE_ROLE_KEY` (somente se necessário e somente como variável protegida no Vercel)
+
+- Em Supabase > Authentication > Settings > Redirect URLs adicione o domínio do Vercel (ex: `https://your-app.vercel.app`) e `http://localhost:3000`.
+
+- Copie `.env.example` para `.env.local` localmente para desenvolvimento.
+
+Depois de configurar as variáveis no Vercel, dê commit na `master` e o deploy será executado automaticamente.
+
+Comandos rápidos:
+
+```bash
+git add .env.example
+git add src/lib/supabase/README.md
+git commit -m "Add Supabase env example and deploy instructions"
+git push origin master
+```

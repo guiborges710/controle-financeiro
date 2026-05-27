@@ -10,7 +10,7 @@ import {
 import type { Universe } from "@/lib/types";
 
 function revalidateUniverse(universe: Universe) {
-  const base = universe === "personal" ? "/pessoal" : "/empresa";
+  const base = universe === "business" ? "/pessoal" : "/empresa";
   revalidatePath(base);
   revalidatePath(`${base}/transacoes`);
 }
