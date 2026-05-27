@@ -22,7 +22,7 @@ export default async function PessoalPage({ searchParams }: Props) {
   const { mes } = await searchParams;
   const yearMonth = resolveYearMonth(mes);
   const user = await getSession();
-  const transactions = await fetchTransactions("personal", yearMonth);
+  const transactions = await fetchTransactions("business", yearMonth);
   const summary = computeSummary(transactions);
 
   return (
@@ -61,7 +61,7 @@ export default async function PessoalPage({ searchParams }: Props) {
         />
       </div>
 
-      <TransactionForm universe="personal" defaultDate={todayIsoDate()} />
+      <TransactionForm universe="business" defaultDate={todayIsoDate()} />
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
@@ -75,7 +75,7 @@ export default async function PessoalPage({ searchParams }: Props) {
         </div>
         <TransactionList
           transactions={transactions.slice(0, 8)}
-          universe="personal"
+          universe="business"
         />
       </section>
     </div>

@@ -14,7 +14,7 @@ export default async function PessoalTransacoesPage({ searchParams }: Props) {
   const { mes } = await searchParams;
   const yearMonth = resolveYearMonth(mes);
   const user = await getSession();
-  const transactions = await fetchTransactions("personal", yearMonth);
+  const transactions = await fetchTransactions("business", yearMonth);
 
   return (
     <div className="space-y-8">
@@ -25,8 +25,8 @@ export default async function PessoalTransacoesPage({ searchParams }: Props) {
       >
         <MonthFilter basePath="/pessoal/transacoes" yearMonth={yearMonth} />
       </PageHeader>
-      <TransactionForm universe="personal" defaultDate={todayIsoDate()} />
-      <TransactionList transactions={transactions} universe="personal" />
+      <TransactionForm universe="business" defaultDate={todayIsoDate()} />
+      <TransactionList transactions={transactions} universe="business" />
     </div>
   );
 }
