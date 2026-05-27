@@ -8,10 +8,7 @@ function isAuthRoute(pathname: string) {
 }
 
 function isProtectedRoute(pathname: string) {
-  return (
-    pathname.startsWith("/pessoal") ||
-    pathname.startsWith("/empresa")
-  );
+  return pathname.startsWith("/empresa");
 }
 
 export async function updateSession(request: NextRequest) {

@@ -1,4 +1,4 @@
-export type Universe = "personal" | "business";
+export type Universe = "business";
 
 export type TransactionType = "income" | "expense";
 

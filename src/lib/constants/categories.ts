@@ -117,7 +117,7 @@ export const DELIVERY_CATEGORIES: CategoryDef[] = [
 ];
 
 export function getCategoriesForUniverse(universe: Universe): CategoryDef[] {
-  return universe === "personal" ? PERSONAL_CATEGORIES : DELIVERY_CATEGORIES;
+  return DELIVERY_CATEGORIES;
 }
 
 export function getCategoryLabel(

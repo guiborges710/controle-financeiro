@@ -74,11 +74,7 @@ function seedStore(): LocalStore {
       created_at: now,
       updated_at: now,
     },
-    transactions: [
-      mk("personal", "income", "salario", 4500, "Salário", 5),
-      mk("personal", "expense", "moradia", 1200, "Aluguel", 8),
-      mk("personal", "expense", "alimentacao", 650, "Mercado", 12),
-    ],
+    transactions: [],
     ...business,
   };
 }

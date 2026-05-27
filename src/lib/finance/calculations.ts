@@ -69,5 +69,5 @@ export function formatPercent(value: number): string {
 }
 
 export function universeLabel(universe: Universe): string {
-  return universe === "personal" ? "Pessoal" : "Empresa";
+  return "Empresa";
 }

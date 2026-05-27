@@ -6,14 +6,13 @@ import { usePathname } from "next/navigation";
 import {
   BookOpen,
   LayoutDashboard,
-  List,
   LogOut,
   Menu,
   Package,
   Receipt,
   ShoppingCart,
   Sparkles,
-  User,
+  Users,
   X,
 } from "lucide-react";
 
@@ -23,12 +22,10 @@ const empresaLinks = [
   { href: "/empresa/gastos", label: "Gastos", icon: Receipt },
   { href: "/empresa/vendas", label: "Vendas", icon: ShoppingCart },
   { href: "/empresa/produtos", label: "Produtos", icon: Package },
+  { href: "/empresa/colaboradores", label: "Colaboradores", icon: Users },
 ] as const;
 
-const pessoalLinks = [
-  { href: "/pessoal", label: "Resumo", icon: User, exact: true },
-  { href: "/pessoal/transacoes", label: "Transações", icon: List },
-] as const;
+
 
 function NavLink({
   href,
@@ -120,16 +117,7 @@ export function AppSidebar({ email }: { email?: string | null }) {
             </div>
           </div>
 
-          <div>
-            <p className="mb-2 px-3 text-[10px] font-semibold tracking-wider text-sidebar-muted uppercase">
-              Pessoal
-            </p>
-            <div className="space-y-0.5">
-              {pessoalLinks.map((link) => (
-                <NavLink key={link.href} {...link} />
-              ))}
-            </div>
-          </div>
+
         </nav>
 
         <div className="space-y-3 border-t border-white/10 p-4">
@@ -139,9 +127,7 @@ export function AppSidebar({ email }: { email?: string | null }) {
               <div>
                 <p className="text-xs font-semibold text-white">Dica rápida</p>
                 <p className="mt-1 text-[11px] leading-relaxed text-sidebar-muted">
-                  {inEmpresa
-                    ? "Cadastre insumos em Gastos antes de montar receitas e produtos."
-                    : "Acompanhe salário e contas fixas para ver quanto sobra no mês."}
+                  Cadastre insumos em Gastos antes de montar receitas e produtos.
                 </p>
               </div>
             </div>
