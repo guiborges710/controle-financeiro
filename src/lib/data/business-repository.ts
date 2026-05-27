@@ -26,6 +26,7 @@ import {
   localListProducts,
   localListRecipes,
   localListSales,
+  localUpdateIngredientScale,
 } from "@/lib/local/store";
 
 function localOnly(): { error: string } | null {
@@ -107,6 +108,7 @@ export async function removeRecipe(id: string) {
 
 export async function createSale(data: {
   product_id: string;
+  description: string;
   quantity: number;
   occurred_at: string;
 }) {
@@ -133,6 +135,15 @@ export async function createExpense(data: {
   const block = localOnly();
   if (block) return block;
   return localCreateExpense(data);
+}
+
+export async function updateIngredientScale(
+  id: string,
+  unit_scale: number | null,
+) {
+  const block = localOnly();
+  if (block) return block;
+  return localUpdateIngredientScale(id, unit_scale);
 }
 
 export async function removeExpense(id: string) {

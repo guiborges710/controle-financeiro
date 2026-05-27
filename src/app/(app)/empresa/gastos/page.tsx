@@ -43,7 +43,6 @@ export default async function GastosPage({ searchParams }: Props) {
       </PageHeader>
 
       <ExpenseFormPanel defaultDate={todayIsoDate()} />
-      <InsumosPanel ingredients={ingredients} />
 
       <section className="space-y-3">
         <h2 className="font-semibold text-stone-900">Gastos do mês</h2>
@@ -91,6 +90,7 @@ export default async function GastosPage({ searchParams }: Props) {
           </ul>
         )}
       </section>
+      <InsumosPanel ingredients={ingredients} />
     </div>
   );
 }

@@ -10,6 +10,7 @@ import {
   removeProduct,
   removeRecipe,
   removeSale,
+  updateIngredientScale,
 } from "@/lib/data/business-repository";
 import type { ExpenseType, MeasureUnit } from "@/lib/types/business";
 
@@ -81,14 +82,16 @@ export async function deleteRecipeAction(id: string): Promise<void> {
 
 export async function saveSale(formData: FormData) {
   const product_id = String(formData.get("product_id") ?? "");
+  const description = String(formData.get("description") ?? "");
   const quantity = Number(formData.get("quantity"));
   const occurred_at = String(formData.get("occurred_at") ?? "");
 
   if (!product_id) return { error: "Selecione um produto" };
+  // if (!description) return { error: "Informe a descrição" };
   if (!quantity || quantity <= 0) return { error: "Quantidade inválida" };
   if (!occurred_at) return { error: "Informe a data" };
 
-  const result = await createSale({ product_id, quantity, occurred_at });
+  const result = await createSale({ product_id, description, quantity, occurred_at });
   if (result.error) return result;
   revalidateEmpresa();
   return { success: true };
@@ -135,6 +138,28 @@ export async function saveExpense(formData: FormData) {
   if (result.error) return result;
   revalidateEmpresa();
   return { success: true };
+}
+
+export async function saveIngredientScale(
+  id: string,
+  formData: FormData,
+): Promise<void> {
+  const rawValue = String(formData.get("unit_scale") ?? "").trim();
+  const unit_scale = rawValue === "" ? null : Number(rawValue);
+
+  if (
+    rawValue !== "" &&
+    (Number.isNaN(unit_scale as number) || (unit_scale as number) <= 0)
+  ) {
+    throw new Error("Informe uma escala válida");
+  }
+
+  const result = await updateIngredientScale(id, unit_scale);
+  if (result.error) {
+    throw new Error(result.error);
+  }
+
+  revalidateEmpresa();
 }
 
 export async function deleteExpenseAction(id: string): Promise<void> {

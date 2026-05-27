@@ -30,210 +30,13 @@ export type LocalStore = {
 };
 
 function seedBusinessEntities(now: string, month: string) {
-  const ingFarinha: Ingredient = {
-    id: "ing-farinha",
-    name: "Farinha de trigo",
-    unit: "g",
-    unit_cost: 0.008,
-    updated_at: now,
+  return {
+    ingredients: [],
+    sellableProducts: [],
+    recipes: [],
+    sales: [],
+    expenses: [],
   };
-  const ingAcucar: Ingredient = {
-    id: "ing-acucar",
-    name: "Açúcar",
-    unit: "g",
-    unit_cost: 0.006,
-    updated_at: now,
-  };
-  const ingOvos: Ingredient = {
-    id: "ing-ovos",
-    name: "Ovos",
-    unit: "unidade",
-    unit_cost: 0.75,
-    updated_at: now,
-  };
-  const ingMacarrao: Ingredient = {
-    id: "ing-macarrao",
-    name: "Macarrão",
-    unit: "g",
-    unit_cost: 0.012,
-    updated_at: now,
-  };
-  const ingLeite: Ingredient = {
-    id: "ing-leite",
-    name: "Leite",
-    unit: "ml",
-    unit_cost: 0.004,
-    updated_at: now,
-  };
-  const ingChocolate: Ingredient = {
-    id: "ing-chocolate",
-    name: "Chocolate em pó",
-    unit: "g",
-    unit_cost: 0.035,
-    updated_at: now,
-  };
-
-  const ingredients = [
-    ingFarinha,
-    ingAcucar,
-    ingOvos,
-    ingMacarrao,
-    ingLeite,
-    ingChocolate,
-  ];
-
-  const prodBrigadeiro: SellableProduct = {
-    id: "prod-brigadeiro",
-    name: "Caixa de brigadeiros",
-    size: "12 unidades",
-    sale_price: 36,
-    recipe_id: "rec-brigadeiro",
-    created_at: now,
-  };
-  const prodMacarrao: SellableProduct = {
-    id: "prod-macarrao",
-    name: "Marmita de macarrão",
-    size: "500 g",
-    sale_price: 22,
-    recipe_id: "rec-macarrao",
-    created_at: now,
-  };
-  const prodSopa: SellableProduct = {
-    id: "prod-sopa",
-    name: "Sopa do dia",
-    size: "500 ml",
-    sale_price: 18,
-    recipe_id: "rec-sopa",
-    created_at: now,
-  };
-
-  const sellableProducts = [prodBrigadeiro, prodMacarrao, prodSopa];
-
-  const recipes: Recipe[] = [
-    {
-      id: "rec-brigadeiro",
-      name: "Brigadeiro (12 un)",
-      sellable_product_id: prodBrigadeiro.id,
-      yield_quantity: 1,
-      lines: [
-        { ingredient_id: ingChocolate.id, quantity: 200, unit: "g" },
-        { ingredient_id: ingAcucar.id, quantity: 150, unit: "g" },
-        { ingredient_id: ingLeite.id, quantity: 200, unit: "ml" },
-      ],
-      created_at: now,
-    },
-    {
-      id: "rec-macarrao",
-      name: "Macarrão com molho",
-      sellable_product_id: prodMacarrao.id,
-      yield_quantity: 1,
-      lines: [
-        { ingredient_id: ingMacarrao.id, quantity: 300, unit: "g" },
-        { ingredient_id: ingOvos.id, quantity: 1, unit: "unidade" },
-        { ingredient_id: ingLeite.id, quantity: 100, unit: "ml" },
-      ],
-      created_at: now,
-    },
-    {
-      id: "rec-sopa",
-      name: "Sopa cremosa",
-      sellable_product_id: prodSopa.id,
-      yield_quantity: 1,
-      lines: [
-        { ingredient_id: ingLeite.id, quantity: 400, unit: "ml" },
-        { ingredient_id: ingFarinha.id, quantity: 50, unit: "g" },
-        { ingredient_id: ingOvos.id, quantity: 1, unit: "unidade" },
-      ],
-      created_at: now,
-    },
-  ];
-
-  const sales: Sale[] = [
-    {
-      id: randomUUID(),
-      product_id: prodBrigadeiro.id,
-      quantity: 2,
-      unit_price: 36,
-      total: 72,
-      occurred_at: `${month}-10`,
-      created_at: now,
-    },
-    {
-      id: randomUUID(),
-      product_id: prodMacarrao.id,
-      quantity: 5,
-      unit_price: 22,
-      total: 110,
-      occurred_at: `${month}-14`,
-      created_at: now,
-    },
-    {
-      id: randomUUID(),
-      product_id: prodSopa.id,
-      quantity: 3,
-      unit_price: 18,
-      total: 54,
-      occurred_at: `${month}-18`,
-      created_at: now,
-    },
-  ];
-
-  const expenses: Expense[] = [
-    {
-      id: randomUUID(),
-      type: "insumo",
-      description: "Compra farinha 5 kg",
-      amount: 40,
-      occurred_at: `${month}-05`,
-      ingredient_id: ingFarinha.id,
-      ingredient_name: ingFarinha.name,
-      ingredient_unit: ingFarinha.unit,
-      quantity_purchased: 5000,
-      unit_cost: 0.008,
-      created_at: now,
-    },
-    {
-      id: randomUUID(),
-      type: "insumo",
-      description: "Compra macarrão 3 kg",
-      amount: 36,
-      occurred_at: `${month}-06`,
-      ingredient_id: ingMacarrao.id,
-      ingredient_name: ingMacarrao.name,
-      ingredient_unit: ingMacarrao.unit,
-      quantity_purchased: 3000,
-      unit_cost: 0.012,
-      created_at: now,
-    },
-    {
-      id: randomUUID(),
-      type: "gas",
-      description: "Botijão de gás",
-      amount: 110,
-      occurred_at: `${month}-08`,
-      ingredient_id: null,
-      ingredient_name: null,
-      ingredient_unit: null,
-      quantity_purchased: null,
-      unit_cost: null,
-      created_at: now,
-    },
-    {
-      id: randomUUID(),
-      type: "energia",
-      description: "Conta de luz",
-      amount: 185,
-      occurred_at: `${month}-12`,
-      ingredient_id: null,
-      ingredient_name: null,
-      ingredient_unit: null,
-      quantity_purchased: null,
-      unit_cost: null,
-      created_at: now,
-    },
-  ];
-
-  return { ingredients, sellableProducts, recipes, sales, expenses };
 }
 
 function seedStore(): LocalStore {
@@ -284,7 +87,10 @@ function normalizeStore(parsed: Partial<LocalStore>): LocalStore {
   const base: LocalStore = {
     businessProfile: parsed.businessProfile ?? null,
     transactions: parsed.transactions ?? [],
-    ingredients: parsed.ingredients ?? [],
+    ingredients: (parsed.ingredients ?? []).map((i) => ({
+      ...i,
+      unit_scale: i.unit_scale ?? null,
+    })),
     sellableProducts: (parsed.sellableProducts ?? []).map((p) => ({
       ...p,
       recipe_id: p.recipe_id ?? "",
@@ -485,6 +291,26 @@ function upsertIngredient(
   return created;
 }
 
+export async function localUpdateIngredientScale(
+  id: string,
+  unit_scale: number | null,
+): Promise<{ error?: string }> {
+  const store = await readStore();
+  const ingredient = store.ingredients.find((i) => i.id === id);
+  if (!ingredient) {
+    return { error: "Insumo não encontrado" };
+  }
+
+  if (unit_scale != null && unit_scale <= 0) {
+    return { error: "Informe uma escala válida" };
+  }
+
+  ingredient.unit_scale = unit_scale;
+  ingredient.updated_at = new Date().toISOString();
+  await writeStore(store);
+  return {};
+}
+
 export async function localCreateProduct(input: {
   name: string;
   size: string;
@@ -556,6 +382,7 @@ export async function localDeleteRecipe(id: string): Promise<{ error?: string }>
 
 export async function localCreateSale(input: {
   product_id: string;
+  description: string;
   quantity: number;
   occurred_at: string;
 }): Promise<{ error?: string }> {
@@ -567,6 +394,7 @@ export async function localCreateSale(input: {
   store.sales.push({
     id: randomUUID(),
     product_id: input.product_id,
+    description: input.description ?? "",
     quantity: input.quantity,
     unit_price: product.sale_price,
     total: product.sale_price * input.quantity,

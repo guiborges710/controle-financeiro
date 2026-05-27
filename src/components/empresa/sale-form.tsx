@@ -83,6 +83,14 @@ export function SaleForm({ products, defaultDate }: Props) {
         </label>
 
         <label className="block text-sm">
+          <span className="font-medium text-zinc-700">Descrição</span>
+          <input
+            name="description"
+            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2"
+          />
+        </label>
+        
+        <label className="block text-sm">
           <span className="font-medium text-zinc-700">Quantidade vendida</span>
           <input
             name="quantity"

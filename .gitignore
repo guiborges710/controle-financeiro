@@ -21,7 +21,7 @@
 /build
 
 # local dev database
-/data/store.json
+# /data/store.json
 
 # misc
 .DS_Store

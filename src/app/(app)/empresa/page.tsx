@@ -162,8 +162,6 @@ export default async function EmpresaPage({ searchParams }: Props) {
         {[
           { href: "/empresa/vendas", label: "Registrar venda", desc: "Produto + quantidade" },
           { href: "/empresa/gastos", label: "Registrar gasto", desc: "Notinha do mercado" },
-          { href: "/empresa/receitas", label: "Montar receita", desc: "Custo e margem" },
-          { href: "/empresa/produtos", label: "Cadastrar produto", desc: "Tamanho e preço" },
         ].map((item) => (
           <Link
             key={item.href}

@@ -1,0 +1,250 @@
+{
+  "businessProfile": {
+    "id": "759cc3a7-a855-4281-8a93-5530f9268167",
+    "user_id": "local-user",
+    "industry": "delivery",
+    "business_name": "Meu delivery (demo)",
+    "config": {},
+    "created_at": "2026-05-27T00:05:22.218Z",
+    "updated_at": "2026-05-27T00:05:22.218Z"
+  },
+  "transactions": [
+    {
+      "id": "c616caae-aaa3-4744-8ea9-2e45c9278606",
+      "user_id": "local-user",
+      "universe": "personal",
+      "type": "income",
+      "category_slug": "freelance",
+      "amount": 240,
+      "description": "Yukiko",
+      "occurred_at": "2026-05-22",
+      "metadata": {},
+      "created_at": "2026-05-27T04:17:44.710Z"
+    },
+    {
+      "id": "a6d41a0c-f070-42a0-a772-6f3572d5c634",
+      "user_id": "local-user",
+      "universe": "personal",
+      "type": "expense",
+      "category_slug": "transporte",
+      "amount": 50,
+      "description": "Gasolina",
+      "occurred_at": "2026-05-23",
+      "metadata": {},
+      "created_at": "2026-05-27T04:18:53.850Z"
+    }
+  ],
+  "ingredients": [
+    {
+      "id": "ing-acucar",
+      "name": "Açúcar",
+      "unit": "g",
+      "unit_cost": 0.00369,
+      "updated_at": "2026-05-27T04:52:13.093Z",
+      "unit_scale": 100
+    },
+    {
+      "id": "ing-ovos",
+      "name": "Ovos",
+      "unit": "unidade",
+      "unit_cost": 1.2333333333333334,
+      "updated_at": "2026-05-27T00:12:02.185Z",
+      "unit_scale": null
+    },
+    {
+      "id": "f366dd48-e686-405e-964e-6fdf1c6c4507",
+      "name": "BISC. PORTO ALEGRE",
+      "unit": "unidade",
+      "unit_cost": 10.99,
+      "updated_at": "2026-05-27T04:52:35.363Z",
+      "unit_scale": 1
+    },
+    {
+      "id": "2fd37f46-dd97-4548-9b7d-2fb86becc16e",
+      "name": "Cream cheese",
+      "unit": "g",
+      "unit_cost": 0.0385,
+      "updated_at": "2026-05-27T00:09:14.005Z",
+      "unit_scale": null
+    },
+    {
+      "id": "8d0eab98-e406-423d-a6dd-087515c7f2e1",
+      "name": "POTE 10UN.",
+      "unit": "unidade",
+      "unit_cost": 0.975,
+      "updated_at": "2026-05-27T00:11:29.997Z",
+      "unit_scale": null
+    },
+    {
+      "id": "464aa5e5-3f6b-4d17-b1b1-3ac438cf1951",
+      "name": "cafe",
+      "unit": "g",
+      "unit_cost": 0.20725,
+      "updated_at": "2026-05-27T00:12:39.571Z",
+      "unit_scale": null
+    }
+  ],
+  "sellableProducts": [
+    {
+      "id": "59b0fcca-73fa-4d8e-a0bc-1afb2bdd26c8",
+      "name": "Tiramisu",
+      "size": "100g",
+      "sale_price": 20,
+      "recipe_id": "c97950d7-9637-49ee-a398-6a1a06ac8ae7",
+      "created_at": "2026-05-27T00:23:03.754Z"
+    }
+  ],
+  "recipes": [
+    {
+      "id": "c97950d7-9637-49ee-a398-6a1a06ac8ae7",
+      "name": "Tiramisu",
+      "sellable_product_id": null,
+      "yield_quantity": 4,
+      "lines": [
+        {
+          "ingredient_id": "f366dd48-e686-405e-964e-6fdf1c6c4507",
+          "quantity": 0.55,
+          "unit": "unidade"
+        },
+        {
+          "ingredient_id": "ing-acucar",
+          "quantity": 100,
+          "unit": "g"
+        },
+        {
+          "ingredient_id": "464aa5e5-3f6b-4d17-b1b1-3ac438cf1951",
+          "quantity": 20,
+          "unit": "g"
+        },
+        {
+          "ingredient_id": "2fd37f46-dd97-4548-9b7d-2fb86becc16e",
+          "quantity": 200,
+          "unit": "g"
+        },
+        {
+          "ingredient_id": "ing-ovos",
+          "quantity": 2,
+          "unit": "unidade"
+        },
+        {
+          "ingredient_id": "8d0eab98-e406-423d-a6dd-087515c7f2e1",
+          "quantity": 12,
+          "unit": "unidade"
+        }
+      ],
+      "created_at": "2026-05-27T00:22:51.420Z"
+    }
+  ],
+  "sales": [
+    {
+      "id": "c1e051fd-bdc3-4d30-ac4d-4d6b6e19f224",
+      "product_id": "59b0fcca-73fa-4d8e-a0bc-1afb2bdd26c8",
+      "description": "Vendas Yukiko",
+      "quantity": 8,
+      "unit_price": 20,
+      "total": 160,
+      "occurred_at": "2026-05-23",
+      "created_at": "2026-05-27T04:15:08.074Z"
+    },
+    {
+      "id": "eb75e64d-94e2-48f6-995c-3f2a66627e12",
+      "product_id": "59b0fcca-73fa-4d8e-a0bc-1afb2bdd26c8",
+      "description": "Marquinhos",
+      "quantity": 2,
+      "unit_price": 20,
+      "total": 40,
+      "occurred_at": "2026-05-26",
+      "created_at": "2026-05-27T04:15:59.480Z"
+    },
+    {
+      "id": "3f158a49-7eb5-426b-804c-f6ba25cc0187",
+      "product_id": "59b0fcca-73fa-4d8e-a0bc-1afb2bdd26c8",
+      "description": "Weber (Barbearia Jundiahy)",
+      "quantity": 1,
+      "unit_price": 20,
+      "total": 20,
+      "occurred_at": "2026-05-25",
+      "created_at": "2026-05-27T04:16:27.435Z"
+    }
+  ],
+  "expenses": [
+    {
+      "id": "c66ca080-dc19-41e5-aea9-f2427420bcb3",
+      "type": "insumo",
+      "description": "BISC. PORTO ALEGRE",
+      "amount": 32.97,
+      "occurred_at": "2026-05-26",
+      "ingredient_id": "f366dd48-e686-405e-964e-6fdf1c6c4507",
+      "ingredient_name": "BISC. PORTO ALEGRE",
+      "ingredient_unit": "unidade",
+      "quantity_purchased": 3,
+      "unit_cost": 10.99,
+      "created_at": "2026-05-27T00:08:33.385Z"
+    },
+    {
+      "id": "d1f3d368-1d65-4fa5-a920-19b14f113bcc",
+      "type": "insumo",
+      "description": "Cream cheese",
+      "amount": 38.5,
+      "occurred_at": "2026-05-26",
+      "ingredient_id": "2fd37f46-dd97-4548-9b7d-2fb86becc16e",
+      "ingredient_name": "Cream cheese",
+      "ingredient_unit": "g",
+      "quantity_purchased": 1000,
+      "unit_cost": 0.0385,
+      "created_at": "2026-05-27T00:09:14.005Z"
+    },
+    {
+      "id": "33aa8410-7251-4922-a5c7-774ef71bcdbb",
+      "type": "insumo",
+      "description": "Açúcar",
+      "amount": 3.69,
+      "occurred_at": "2026-05-26",
+      "ingredient_id": "ing-acucar",
+      "ingredient_name": "Açúcar",
+      "ingredient_unit": "g",
+      "quantity_purchased": 1000,
+      "unit_cost": 0.00369,
+      "created_at": "2026-05-27T00:10:50.553Z"
+    },
+    {
+      "id": "a7a2e7f5-de02-4beb-8806-9894e87439d7",
+      "type": "insumo",
+      "description": "POTE 10UN.",
+      "amount": 9.75,
+      "occurred_at": "2026-05-26",
+      "ingredient_id": "8d0eab98-e406-423d-a6dd-087515c7f2e1",
+      "ingredient_name": "POTE 10UN.",
+      "ingredient_unit": "unidade",
+      "quantity_purchased": 10,
+      "unit_cost": 0.975,
+      "created_at": "2026-05-27T00:11:29.997Z"
+    },
+    {
+      "id": "e6101670-c2b8-41f7-86b3-893aa4e43597",
+      "type": "insumo",
+      "description": "Ovos",
+      "amount": 14.8,
+      "occurred_at": "2026-05-26",
+      "ingredient_id": "ing-ovos",
+      "ingredient_name": "Ovos",
+      "ingredient_unit": "unidade",
+      "quantity_purchased": 12,
+      "unit_cost": 1.2333333333333334,
+      "created_at": "2026-05-27T00:12:02.185Z"
+    },
+    {
+      "id": "848f12de-c513-41f3-9286-c62234f87eb3",
+      "type": "insumo",
+      "description": "cafe",
+      "amount": 8.29,
+      "occurred_at": "2026-05-26",
+      "ingredient_id": "464aa5e5-3f6b-4d17-b1b1-3ac438cf1951",
+      "ingredient_name": "cafe",
+      "ingredient_unit": "g",
+      "quantity_purchased": 40,
+      "unit_cost": 0.20725,
+      "created_at": "2026-05-27T00:12:39.571Z"
+    }
+  ]
+}

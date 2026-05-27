@@ -12,6 +12,7 @@ export type Ingredient = {
   name: string;
   unit: MeasureUnit;
   unit_cost: number;
+  unit_scale?: number | null;
   updated_at: string;
 };
 
@@ -42,6 +43,7 @@ export type Recipe = {
 export type Sale = {
   id: string;
   product_id: string;
+  description: string;
   quantity: number;
   unit_price: number;
   total: number;

@@ -54,7 +54,7 @@ export default async function VendasPage({ searchParams }: Props) {
                 <li key={s.id} className="flex items-center gap-3 px-4 py-3">
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-stone-900">
-                      {product?.name ?? "Produto"} ({product?.size ?? "—"})
+                      {s.description} - {product?.name ?? "Produto"} ({product?.size ?? "—"})
                     </p>
                     <p className="text-sm text-stone-500">
                       {s.quantity} × {formatCurrency(s.unit_price)} ·{" "}
