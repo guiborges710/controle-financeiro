@@ -13,6 +13,7 @@ import type {
   RecipeLine,
   Sale,
   SellableProduct,
+  StockEntry,
 } from "@/lib/types/business";
 import type { BusinessProfile, Transaction, Universe } from "@/lib/types";
 
@@ -27,6 +28,7 @@ export type LocalStore = {
   recipes: Recipe[];
   sales: Sale[];
   expenses: Expense[];
+  stock: StockEntry[];
 };
 
 function seedBusinessEntities(now: string, month: string) {
@@ -76,6 +78,7 @@ function seedStore(): LocalStore {
     },
     transactions: [],
     ...business,
+    stock: [],
   };
 }
 
@@ -93,6 +96,7 @@ function normalizeStore(parsed: Partial<LocalStore>): LocalStore {
     })).filter((p) => p.recipe_id),
     recipes: parsed.recipes ?? [],
     sales: parsed.sales ?? [],
+    stock: parsed.stock ?? [],
     expenses: (parsed.expenses ?? []).map((e) => ({
       ...e,
       ingredient_name: e.ingredient_name ?? null,
@@ -254,6 +258,13 @@ export async function localListSales(yearMonth?: string): Promise<Sale[]> {
   );
 }
 
+export async function localListStock(yearMonth?: string): Promise<StockEntry[]> {
+  const store = await readStore();
+  return filterByMonth(store.stock, yearMonth).sort((a, b) =>
+    b.occurred_at.localeCompare(a.occurred_at),
+  );
+}
+
 export async function localListExpenses(yearMonth?: string): Promise<Expense[]> {
   const store = await readStore();
   return filterByMonth(store.expenses, yearMonth).sort((a, b) =>
@@ -397,6 +408,42 @@ export async function localCreateSale(input: {
     occurred_at: input.occurred_at,
     created_at: new Date().toISOString(),
   });
+  await writeStore(store);
+  return {};
+}
+
+export async function localCreateStock(input: {
+  recipe_id: string;
+  produced_quantity: number;
+  occurred_at: string;
+}): Promise<{ error?: string }> {
+  const store = await readStore();
+  const recipe = store.recipes.find((r) => r.id === input.recipe_id);
+  if (!recipe) return { error: "Receita não encontrada" };
+  if (!input.produced_quantity || input.produced_quantity <= 0) {
+    return { error: "Quantidade produzida inválida" };
+  }
+
+  // Calcular custo total a partir dos insumos
+  let totalCost = 0;
+  for (const line of recipe.lines) {
+    const ing = store.ingredients.find((i) => i.id === line.ingredient_id);
+    if (!ing) continue;
+    totalCost += line.quantity * ing.unit_cost;
+  }
+
+  const costPerUnit = totalCost / input.produced_quantity;
+
+  store.stock.push({
+    id: randomUUID(),
+    recipe_id: input.recipe_id,
+    produced_quantity: input.produced_quantity,
+    cost_per_unit: costPerUnit,
+    total_cost: totalCost,
+    occurred_at: input.occurred_at,
+    created_at: new Date().toISOString(),
+  });
+
   await writeStore(store);
   return {};
 }

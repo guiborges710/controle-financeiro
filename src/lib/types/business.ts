@@ -79,3 +79,13 @@ export type BusinessMonthSummary = {
   balance: number;
   marginPercent: number | null;
 };
+
+export type StockEntry = {
+  id: string;
+  recipe_id: string;
+  produced_quantity: number;
+  cost_per_unit: number;
+  total_cost: number;
+  occurred_at: string;
+  created_at: string;
+};

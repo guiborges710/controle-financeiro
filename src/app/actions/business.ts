@@ -6,6 +6,7 @@ import {
   createProduct,
   createRecipe,
   createSale,
+  createStock,
   removeExpense,
   removeProduct,
   removeRecipe,
@@ -20,6 +21,7 @@ function revalidateEmpresa() {
   revalidatePath("/empresa/gastos");
   revalidatePath("/empresa/receitas");
   revalidatePath("/empresa/produtos");
+  revalidatePath("/empresa/estoque");
 }
 
 export async function saveProduct(formData: FormData) {
@@ -100,6 +102,22 @@ export async function saveSale(formData: FormData) {
 export async function deleteSaleAction(id: string): Promise<void> {
   await removeSale(id);
   revalidateEmpresa();
+}
+
+export async function saveProduction(formData: FormData) {
+  const recipe_id = String(formData.get("recipe_id") ?? "");
+  const produced_quantity = Number(formData.get("produced_quantity"));
+  const occurred_at = String(formData.get("occurred_at") ?? "");
+
+  if (!recipe_id) return { error: "Selecione uma receita" };
+  if (!produced_quantity || produced_quantity <= 0)
+    return { error: "Quantidade inválida" };
+  if (!occurred_at) return { error: "Informe a data" };
+
+  const result = await createStock({ recipe_id, produced_quantity, occurred_at });
+  if (result.error) return result;
+  revalidateEmpresa();
+  return { success: true };
 }
 
 export async function saveExpense(formData: FormData) {

@@ -18,6 +18,7 @@ import {
   localCreateProduct,
   localCreateRecipe,
   localCreateSale,
+  localCreateStock,
   localDeleteExpense,
   localDeleteProduct,
   localDeleteRecipe,
@@ -28,6 +29,7 @@ import {
   localListProducts,
   localListRecipes,
   localListSales,
+  localListStock,
   localUpdateIngredientScale,
 } from "@/lib/local/store";
 
@@ -289,6 +291,13 @@ export async function getBusinessSummary(yearMonth?: string) {
   };
 }
 
+export async function getStocks(yearMonth?: string) {
+  if (isLocalMode()) {
+    return localListStock(yearMonth);
+  }
+  return [];
+}
+
 export async function createProduct(data: {
   name: string;
   size: string;
@@ -439,6 +448,17 @@ export async function removeSale(id: string) {
 
   if (error) return { error: error.message };
   return {};
+}
+
+export async function createStock(data: {
+  recipe_id: string;
+  produced_quantity: number;
+  occurred_at: string;
+}) {
+  if (isLocalMode()) {
+    return localCreateStock(data);
+  }
+  return { error: "Não disponível no modo remoto" };
 }
 
 export async function createExpense(data: {

@@ -19,6 +19,7 @@ import {
 const empresaLinks = [
   { href: "/empresa", label: "Visão geral", icon: LayoutDashboard, exact: true },
   { href: "/empresa/receitas", label: "Receitas", icon: BookOpen },
+  { href: "/empresa/estoque", label: "Estoque", icon: Package },
   { href: "/empresa/gastos", label: "Gastos", icon: Receipt },
   { href: "/empresa/vendas", label: "Vendas", icon: ShoppingCart },
   { href: "/empresa/produtos", label: "Produtos", icon: Package },
