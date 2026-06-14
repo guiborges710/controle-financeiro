@@ -114,6 +114,16 @@ export async function ensureBusinessProfile(): Promise<void> {
     .maybeSingle();
 
   if (!existing) {
+    const { data: acceptedInvite } = await supabase
+      .from("collaborators")
+      .select("id")
+      .eq("invited_email", user.email.toLowerCase())
+      .eq("status", "accepted")
+      .limit(1)
+      .maybeSingle();
+
+    if (acceptedInvite) return;
+
     await supabase.from("business_profiles").insert({
       user_id: user.id,
       industry: "delivery",

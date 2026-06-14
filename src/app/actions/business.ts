@@ -7,13 +7,20 @@ import {
   createRecipe,
   createSale,
   createStock,
+  clearIngredients,
+  convertExpenseToIngredient,
   removeExpense,
+  removeIngredient,
   removeProduct,
   removeRecipe,
   removeSale,
   updateIngredientScale,
 } from "@/lib/data/business-repository";
-import type { ExpenseType, MeasureUnit } from "@/lib/types/business";
+import type {
+  ExpenseType,
+  IngredientScaleUnit,
+  MeasureUnit,
+} from "@/lib/types/business";
 
 function revalidateEmpresa() {
   revalidatePath("/empresa");
@@ -158,12 +165,261 @@ export async function saveExpense(formData: FormData) {
   return { success: true };
 }
 
+type CsvExpenseRow = {
+  data: string;
+  categoria: string;
+  produto: string;
+  marca: string;
+  quantidade: string;
+  unidade: string;
+  valorTotal: string;
+  fornecedor: string;
+  observacao: string;
+};
+
+function parseCsvLine(line: string) {
+  const values: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    const next = line[i + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+      current += '"';
+      i += 1;
+      continue;
+    }
+
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      values.push(current.trim());
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  values.push(current.trim());
+  return values;
+}
+
+function normalizeHeader(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+function parseBrazilianMoney(value: string) {
+  const normalized = value
+    .replace(/R\$/gi, "")
+    .replace(/\s/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".");
+  return Number(normalized);
+}
+
+function parseBrazilianNumber(value: string) {
+  return Number(value.replace(/\./g, "").replace(",", "."));
+}
+
+function parseBrazilianDate(value: string) {
+  const [day, month, year] = value.split("/").map((part) => Number(part));
+  if (!day || !month || !year) return null;
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function mapCsvExpenseType(category: string): ExpenseType {
+  const normalized = normalizeHeader(category);
+  if (normalized.includes("ingrediente")) return "insumo";
+  if (normalized.includes("embalagem")) return "embalagem";
+  if (normalized.includes("energia") || normalized.includes("luz")) {
+    return "energia";
+  }
+  if (normalized === "gas" || normalized.includes("gas")) return "gas";
+  return "outros";
+}
+
+function mapCsvUnit(unit: string, quantity: number) {
+  const normalized = normalizeHeader(unit);
+  if (normalized === "g" || normalized === "grama" || normalized === "gramas") {
+    return { unit: "g" as MeasureUnit, quantity };
+  }
+  if (normalized === "kg" || normalized === "quilo" || normalized === "quilos") {
+    return { unit: "g" as MeasureUnit, quantity: quantity * 1000 };
+  }
+  if (
+    normalized === "ml" ||
+    normalized === "mililitro" ||
+    normalized === "mililitros"
+  ) {
+    return { unit: "ml" as MeasureUnit, quantity };
+  }
+  if (normalized === "l" || normalized === "litro" || normalized === "litros") {
+    return { unit: "ml" as MeasureUnit, quantity: quantity * 1000 };
+  }
+  return { unit: "unidade" as MeasureUnit, quantity };
+}
+
+function parseExpenseCsv(text: string): CsvExpenseRow[] {
+  const lines = text
+    .replace(/^\uFEFF/, "")
+    .split(/\r?\n/)
+    .filter((line) => line.trim().length > 0);
+
+  if (lines.length < 2) return [];
+
+  const headers = parseCsvLine(lines[0]).map(normalizeHeader);
+  const index = (name: string) => headers.indexOf(name);
+
+  return lines.slice(1).map((line) => {
+    const values = parseCsvLine(line);
+    const get = (name: string) => {
+      const columnIndex = index(name);
+      return columnIndex >= 0 ? values[columnIndex]?.trim() ?? "" : "";
+    };
+
+    return {
+      data: get("data"),
+      categoria: get("categoria"),
+      produto: get("produto"),
+      marca: get("marca"),
+      quantidade: get("quantidade"),
+      unidade: get("unidade"),
+      valorTotal: get("valortotal"),
+      fornecedor: get("fornecedor"),
+      observacao: get("observacao"),
+    };
+  });
+}
+
+export async function importExpensesCsv(formData: FormData) {
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "Selecione um arquivo CSV" };
+  }
+
+  const text = await file.text();
+  const rows = parseExpenseCsv(text);
+  if (rows.length === 0) return { error: "CSV sem linhas para importar" };
+
+  let imported = 0;
+  const errors: string[] = [];
+
+  for (const [index, row] of rows.entries()) {
+    const lineNumber = index + 2;
+    const occurred_at = parseBrazilianDate(row.data);
+    const amount = parseBrazilianMoney(row.valorTotal);
+    const quantity = parseBrazilianNumber(row.quantidade || "1");
+    const type = mapCsvExpenseType(row.categoria);
+
+    if (!occurred_at) {
+      errors.push(`Linha ${lineNumber}: data inválida`);
+      continue;
+    }
+    if (!amount || amount <= 0) {
+      errors.push(`Linha ${lineNumber}: valor inválido`);
+      continue;
+    }
+    if (!row.produto) {
+      errors.push(`Linha ${lineNumber}: produto vazio`);
+      continue;
+    }
+
+    const descriptionParts = [row.produto, row.marca, row.fornecedor]
+      .map((part) => part.trim())
+      .filter(Boolean);
+    const description = descriptionParts.join(" - ");
+
+    const result = await createExpense({
+      type,
+      description,
+      amount,
+      occurred_at,
+      ingredient_name: type === "insumo" ? row.produto : undefined,
+      ingredient_unit:
+        type === "insumo" ? mapCsvUnit(row.unidade, quantity).unit : undefined,
+      quantity_purchased:
+        type === "insumo"
+          ? mapCsvUnit(row.unidade, quantity).quantity
+          : undefined,
+    });
+
+    if (result.error) {
+      errors.push(`Linha ${lineNumber}: ${result.error}`);
+      continue;
+    }
+
+    imported += 1;
+  }
+
+  revalidateEmpresa();
+
+  if (imported === 0) {
+    return {
+      error: errors.slice(0, 5).join("; ") || "Nenhuma linha foi importada",
+    };
+  }
+
+  return {
+    success: true,
+    imported,
+    errors: errors.slice(0, 5),
+    skipped: errors.length,
+  };
+}
+
+export async function addExpenseToIngredient(
+  id: string,
+  formData: FormData,
+) {
+  const ingredient_name = String(formData.get("ingredient_name") ?? "").trim();
+  const ingredient_unit = String(
+    formData.get("ingredient_unit") ?? "",
+  ) as MeasureUnit;
+  const quantity_purchased = Number(formData.get("quantity_purchased"));
+
+  if (!ingredient_name) return { error: "Informe o nome do item" };
+  if (!ingredient_unit) return { error: "Escolha a unidade de medida" };
+  if (!quantity_purchased || quantity_purchased <= 0) {
+    return { error: "Informe quantas unidades você comprou" };
+  }
+
+  const result = await convertExpenseToIngredient(id, {
+    ingredient_name,
+    ingredient_unit,
+    quantity_purchased,
+  });
+  if (result.error) return result;
+  revalidateEmpresa();
+  return { success: true };
+}
+
+export async function clearIngredientsAction(): Promise<void> {
+  const result = await clearIngredients();
+  if (result.error) {
+    throw new Error(result.error);
+  }
+  revalidateEmpresa();
+}
+
 export async function saveIngredientScale(
   id: string,
   formData: FormData,
 ): Promise<void> {
   const rawValue = String(formData.get("unit_scale") ?? "").trim();
   const unit_scale = rawValue === "" ? null : Number(rawValue);
+  const rawUnit = String(formData.get("unit_scale_unit") ?? "").trim();
+  const unit_scale_unit =
+    rawValue === "" ? null : (rawUnit as IngredientScaleUnit);
 
   if (
     rawValue !== "" &&
@@ -172,11 +428,27 @@ export async function saveIngredientScale(
     throw new Error("Informe uma escala válida");
   }
 
-  const result = await updateIngredientScale(id, unit_scale);
+  if (
+    unit_scale_unit != null &&
+    unit_scale_unit !== "unidade" &&
+    unit_scale_unit !== "g"
+  ) {
+    throw new Error("Escolha unidade ou gramagem");
+  }
+
+  const result = await updateIngredientScale(id, unit_scale, unit_scale_unit);
   if (result.error) {
     throw new Error(result.error);
   }
 
+  revalidateEmpresa();
+}
+
+export async function deleteIngredientAction(id: string): Promise<void> {
+  const result = await removeIngredient(id);
+  if (result.error) {
+    throw new Error(result.error);
+  }
   revalidateEmpresa();
 }
 

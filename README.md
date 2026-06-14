@@ -1,75 +1,52 @@
 # Controle Financeiro
 
-SaaS de controle financeiro com dois **universos**:
+SaaS de controle financeiro com dois universos:
 
 | Universo | Rota | O que registra |
 |----------|------|----------------|
-| **Pessoal** | `/pessoal` | Receitas e despesas do dia a dia |
-| **Empresa** | `/empresa` | Faturamento e custos (MVP: **Delivery**) |
+| Pessoal | `/pessoal` | Receitas e despesas do dia a dia |
+| Empresa | `/empresa` | Faturamento e custos |
 
-## Começar agora (modo local — sem Supabase)
+## Modo mock local
 
-Por padrão o projeto roda em **modo local**. Não precisa criar conta no Supabase.
+Por padrão, o projeto roda em `mock`: os dados ficam em `data/store.json` e
+nenhuma chamada é feita ao Supabase.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Abra [http://localhost:3000](http://localhost:3000) e clique em **Experimentar agora** ou **Entrar e testar o sistema**.
+Abra `http://localhost:3000` e use o login local.
 
-- Os dados ficam em `data/store.json` (criado automaticamente na primeira execução)
-- Já vêm **lançamentos de exemplo** (pessoal + delivery)
-- Você pode adicionar, listar e excluir transações normalmente
-- Use **Restaurar dados de exemplo** no banner azul para resetar o demo
+Para forçar pelo código, edite:
 
-## Modo Supabase (quando for avançar)
+```ts
+// src/lib/config/mode.ts
+export const CODE_DATA_MODE = "mock";
+```
 
-1. No `.env.local`, defina:
+## Produção
+
+Para usar Supabase, troque para `production`:
+
+```ts
+// src/lib/config/mode.ts
+export const CODE_DATA_MODE = "production";
+```
+
+Ou defina no ambiente:
 
 ```env
-DATA_MODE=supabase
+DATA_MODE=production
 NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-anon
 ```
 
-2. Execute `supabase/migrations/001_initial_schema.sql` no SQL Editor do Supabase.
-3. Habilite autenticação por e-mail/senha.
-
-## Delivery (empresa)
-
-Faturamento por linha: doces, macarrão, sopa, outros salgados. Cálculos de margem e resultado líquido no painel `/empresa`.
-
-Futuramente: formulário para escolher o ramo e configs por ramo (hoje só `delivery`).
+Execute as migrations em `supabase/migrations/` no banco de produção.
 
 ## Stack
 
 - Next.js 16 + TypeScript + Tailwind
-- Modo local: JSON em disco
-- Modo supabase: Auth + PostgreSQL
-
-## Deploy (Vercel)
-
-Para deixar o projeto pronto para `master` → Vercel (deploy automático):
-
-- Adicione as variáveis de ambiente no Project → Settings → Environment Variables (use `Production` para a branch `master`):
-	- `NEXT_PUBLIC_SUPABASE_URL`
-	- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-	- `SUPABASE_URL` (opcional)
-	- `SUPABASE_ANON_KEY` (opcional)
-	- `SUPABASE_SERVICE_ROLE_KEY` (somente se necessário e somente como variável protegida no Vercel)
-
-- Em Supabase > Authentication > Settings > Redirect URLs adicione o domínio do Vercel (ex: `https://your-app.vercel.app`) e `http://localhost:3000`.
-
-- Copie `.env.example` para `.env.local` localmente para desenvolvimento.
-
-Depois de configurar as variáveis no Vercel, dê commit na `master` e o deploy será executado automaticamente.
-
-Comandos rápidos:
-
-```bash
-git add .env.example
-git add src/lib/supabase/README.md
-git commit -m "Add Supabase env example and deploy instructions"
-git push origin master
-```
+- Mock local: JSON em disco
+- Produção: Supabase Auth + PostgreSQL

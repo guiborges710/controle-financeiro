@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { MonthFilter } from "@/components/finance/month-filter";
+import { PaginatedList } from "@/components/ui/paginated-list";
 import { Card, StatCard } from "@/components/ui/stat-card";
 import { getActiveIndustryConfig } from "@/lib/constants/industries";
 import {
@@ -35,6 +36,7 @@ export default async function EmpresaPage({ searchParams }: Props) {
     getExpenses(yearMonth),
     getProducts(),
   ]);
+  const monthQuery = `?mes=${yearMonth}`;
 
   const productMap = new Map(products.map((p) => [p.id, p]));
   const salesByProduct = new Map<string, number>();
@@ -92,7 +94,7 @@ export default async function EmpresaPage({ searchParams }: Props) {
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold text-stone-900">Vendas por produto</h2>
             <Link
-              href="/empresa/vendas"
+              href={`/empresa/vendas${monthQuery}`}
               className="text-sm font-medium text-primary hover:text-primary-hover"
             >
               Ver vendas →
@@ -101,7 +103,7 @@ export default async function EmpresaPage({ searchParams }: Props) {
           {salesByProduct.size === 0 ? (
             <p className="text-sm text-stone-500">Nenhuma venda no mês.</p>
           ) : (
-            <ul className="space-y-3">
+            <PaginatedList as="ul" className="space-y-3">
               {[...salesByProduct.entries()]
                 .sort((a, b) => b[1] - a[1])
                 .map(([id, total], i) => (
@@ -122,7 +124,7 @@ export default async function EmpresaPage({ searchParams }: Props) {
                     </span>
                   </li>
                 ))}
-            </ul>
+            </PaginatedList>
           )}
         </Card>
 
@@ -130,7 +132,7 @@ export default async function EmpresaPage({ searchParams }: Props) {
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold text-stone-900">Últimos gastos</h2>
             <Link
-              href="/empresa/gastos"
+              href={`/empresa/gastos${monthQuery}`}
               className="text-sm font-medium text-primary hover:text-primary-hover"
             >
               Ver gastos →
@@ -160,8 +162,8 @@ export default async function EmpresaPage({ searchParams }: Props) {
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { href: "/empresa/vendas", label: "Registrar venda", desc: "Produto + quantidade" },
-          { href: "/empresa/gastos", label: "Registrar gasto", desc: "Notinha do mercado" },
+          { href: `/empresa/vendas${monthQuery}`, label: "Registrar venda", desc: "Produto + quantidade" },
+          { href: `/empresa/gastos${monthQuery}`, label: "Registrar gasto", desc: "Notinha do mercado" },
         ].map((item) => (
           <Link
             key={item.href}

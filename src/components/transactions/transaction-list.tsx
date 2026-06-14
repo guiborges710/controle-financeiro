@@ -2,6 +2,7 @@ import { deleteTransactionAction } from "@/app/actions/transactions";
 import { getCategoryLabel } from "@/lib/constants/categories";
 import { formatCurrency } from "@/lib/finance/calculations";
 import type { Transaction, Universe } from "@/lib/types";
+import { PaginatedList } from "@/components/ui/paginated-list";
 import { ArrowDownLeft, ArrowUpRight, Trash2 } from "lucide-react";
 
 type Props = {
@@ -19,7 +20,10 @@ export function TransactionList({ transactions, universe }: Props) {
   }
 
   return (
-    <ul className="divide-y divide-border-soft overflow-hidden rounded-2xl border border-border-soft bg-card shadow-sm">
+    <PaginatedList
+      as="ul"
+      className="divide-y divide-border-soft overflow-hidden rounded-2xl border border-border-soft bg-card shadow-sm"
+    >
       {transactions.map((t) => (
         <li
           key={t.id}
@@ -68,6 +72,6 @@ export function TransactionList({ transactions, universe }: Props) {
           </form>
         </li>
       ))}
-    </ul>
+    </PaginatedList>
   );
 }

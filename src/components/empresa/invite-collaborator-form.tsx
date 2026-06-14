@@ -2,9 +2,13 @@
 
 import { useState } from "react";
 import { inviteCollaborator } from "@/app/actions/collaborators";
-import { Mail, Send, Users } from "lucide-react";
+import { Send, Users } from "lucide-react";
 
-export function InviteCollaboratorForm() {
+export function InviteCollaboratorForm({
+  projectName,
+}: {
+  projectName?: string | null;
+}) {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"editor" | "viewer">("viewer");
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +42,12 @@ export function InviteCollaboratorForm() {
         <Users className="h-5 w-5 text-primary" />
         <h2 className="font-semibold text-stone-900">Convidar colaborador</h2>
       </div>
+      {projectName ? (
+        <p className="text-sm text-stone-500">
+          Projeto compartilhado:{" "}
+          <span className="font-medium text-stone-800">{projectName}</span>
+        </p>
+      ) : null}
 
       {error && (
         <div className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">

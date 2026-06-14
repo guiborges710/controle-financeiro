@@ -1,4 +1,5 @@
 export type MeasureUnit = "g" | "ml" | "unidade";
+export type IngredientScaleUnit = "g" | "unidade";
 
 export type ExpenseType =
   | "insumo"
@@ -13,6 +14,8 @@ export type Ingredient = {
   unit: MeasureUnit;
   unit_cost: number;
   unit_scale?: number | null;
+  unit_scale_unit?: IngredientScaleUnit | null;
+  created_by_email?: string | null;
   updated_at: string;
 };
 
@@ -22,6 +25,7 @@ export type SellableProduct = {
   size: string;
   sale_price: number;
   recipe_id: string;
+  created_by_email?: string | null;
   created_at: string;
 };
 
@@ -37,6 +41,7 @@ export type Recipe = {
   sellable_product_id: string | null;
   yield_quantity: number;
   lines: RecipeLine[];
+  created_by_email?: string | null;
   created_at: string;
 };
 
@@ -48,6 +53,7 @@ export type Sale = {
   unit_price: number;
   total: number;
   occurred_at: string;
+  created_by_email?: string | null;
   created_at: string;
 };
 
@@ -62,6 +68,7 @@ export type Expense = {
   ingredient_unit: MeasureUnit | null;
   quantity_purchased: number | null;
   unit_cost: number | null;
+  created_by_email?: string | null;
   created_at: string;
 };
 

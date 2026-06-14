@@ -1,16 +1,26 @@
-/** Modo local: dados em `data/store.json`, sem Supabase. */
-export function isLocalMode(): boolean {
+export type DataMode = "mock" | "production";
+
+/**
+ * Troque aqui quando quiser forçar pelo código:
+ * - "mock": banco local em data/store.json, sem Supabase.
+ * - "production": Auth + PostgreSQL no Supabase.
+ *
+ * A variável DATA_MODE ainda pode sobrescrever isso quando definida.
+ */
+export const CODE_DATA_MODE: DataMode = "production";
+
+export function getDataMode(): DataMode {
   const mode = process.env.DATA_MODE?.toLowerCase();
-  if (mode === "local") return true;
-  if (mode === "supabase") return false;
 
-  const url =
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "";
-  const key =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY ?? "";
+  if (mode === "mock" || mode === "local") return "mock";
+  if (mode === "production" || mode === "prod" || mode === "supabase") {
+    return "production";
+  }
 
-  if (!url || !key) return true;
-  if (url.includes("placeholder") || key.includes("placeholder")) return true;
+  return CODE_DATA_MODE;
+}
 
-  return false;
+/** Modo mock: dados em `data/store.json`, sem Supabase. */
+export function isLocalMode(): boolean {
+  return getDataMode() === "mock";
 }

@@ -2,6 +2,7 @@ import { deleteSaleAction } from "@/app/actions/business";
 import { SaleForm } from "@/components/empresa/sale-form";
 import { PageHeader } from "@/components/layout/page-header";
 import { MonthFilter } from "@/components/finance/month-filter";
+import { PaginatedList } from "@/components/ui/paginated-list";
 import { getProducts, getSales } from "@/lib/data/business-repository";
 import { getSession } from "@/lib/auth/session";
 import { formatCurrency } from "@/lib/finance/calculations";
@@ -47,11 +48,22 @@ export default async function VendasPage({ searchParams }: Props) {
             Nenhuma venda neste mês.
           </p>
         ) : (
-          <ul className="divide-y divide-border-soft overflow-hidden rounded-2xl border border-border-soft bg-card shadow-sm">
+          <PaginatedList
+            as="ul"
+            className="divide-y divide-border-soft overflow-hidden rounded-2xl border border-border-soft bg-card shadow-sm"
+          >
             {sales.map((s) => {
               const product = productMap.get(s.product_id);
               return (
-                <li key={s.id} className="flex items-center gap-3 px-4 py-3">
+                <li
+                  key={s.id}
+                  className="flex items-center gap-3 px-4 py-3"
+                  title={
+                    s.created_by_email
+                      ? `Criado/alterado por ${s.created_by_email}`
+                      : undefined
+                  }
+                >
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-stone-900">
                       {s.description} - {product?.name ?? "Produto"} ({product?.size ?? "—"})
@@ -77,7 +89,7 @@ export default async function VendasPage({ searchParams }: Props) {
                 </li>
               );
             })}
-          </ul>
+          </PaginatedList>
         )}
       </section>
     </div>

@@ -30,7 +30,7 @@ export default async function ColaboradoresPage() {
   // Buscar business profile
   const { data: profile } = await supabase
     .from("business_profiles")
-    .select("id")
+    .select("id, business_name")
     .eq("user_id", user?.id)
     .single();
 
@@ -60,10 +60,15 @@ export default async function ColaboradoresPage() {
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <InviteCollaboratorForm />
+        <InviteCollaboratorForm
+          projectName={profile?.business_name ?? "Projeto sem nome"}
+        />
 
         <div className="space-y-3">
-          <h2 className="font-semibold text-stone-900">Colaboradores ativos</h2>
+          <h2 className="font-semibold text-stone-900">
+            Colaboradores ativos
+            {profile?.business_name ? ` - ${profile.business_name}` : ""}
+          </h2>
           <CollaboratorsList
             collaborators={collaborators.filter((c) => c.status === "accepted")}
           />

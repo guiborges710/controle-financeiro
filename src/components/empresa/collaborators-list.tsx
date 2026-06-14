@@ -1,6 +1,7 @@
 "use client";
 
 import { removeCollaborator } from "@/app/actions/collaborators";
+import { PaginatedList } from "@/components/ui/paginated-list";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 
@@ -37,7 +38,7 @@ export function CollaboratorsList({ collaborators }: { collaborators: Collaborat
   }
 
   return (
-    <div className="space-y-3">
+    <PaginatedList className="space-y-3">
       {collaborators.map((collab) => (
         <div
           key={collab.id}
@@ -78,6 +79,6 @@ export function CollaboratorsList({ collaborators }: { collaborators: Collaborat
           </button>
         </div>
       ))}
-    </div>
+    </PaginatedList>
   );
 }

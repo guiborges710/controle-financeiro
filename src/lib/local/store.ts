@@ -8,6 +8,7 @@ import type {
   Expense,
   ExpenseType,
   Ingredient,
+  IngredientScaleUnit,
   MeasureUnit,
   Recipe,
   RecipeLine,
@@ -89,6 +90,7 @@ function normalizeStore(parsed: Partial<LocalStore>): LocalStore {
     ingredients: (parsed.ingredients ?? []).map((i) => ({
       ...i,
       unit_scale: i.unit_scale ?? null,
+      unit_scale_unit: i.unit_scale_unit ?? null,
     })),
     sellableProducts: (parsed.sellableProducts ?? []).map((p) => ({
       ...p,
@@ -298,9 +300,64 @@ function upsertIngredient(
   return created;
 }
 
+function recalculateIngredientAverage(
+  store: LocalStore,
+  name: string,
+  unit: MeasureUnit,
+): Ingredient {
+  const normalizedName = name.trim();
+  const matchingExpenses = store.expenses.filter(
+    (expense) =>
+      expense.type === "insumo" &&
+      expense.ingredient_name?.toLowerCase() === normalizedName.toLowerCase() &&
+      expense.ingredient_unit === unit &&
+      expense.quantity_purchased != null &&
+      expense.quantity_purchased > 0,
+  );
+  const totalAmount = matchingExpenses.reduce(
+    (sum, expense) => sum + expense.amount,
+    0,
+  );
+  const totalQuantity = matchingExpenses.reduce(
+    (sum, expense) => sum + (expense.quantity_purchased ?? 0),
+    0,
+  );
+  const averageCost = totalQuantity > 0 ? totalAmount / totalQuantity : 0;
+  const ingredient = upsertIngredient(store, normalizedName, unit, averageCost);
+
+  for (const expense of matchingExpenses) {
+    expense.ingredient_id = ingredient.id;
+    expense.unit_cost =
+      expense.quantity_purchased && expense.quantity_purchased > 0
+        ? expense.amount / expense.quantity_purchased
+        : null;
+  }
+
+  return ingredient;
+}
+
+export async function localClearIngredients(): Promise<{ error?: string }> {
+  const store = await readStore();
+  const ingredientIds = new Set(store.ingredients.map((i) => i.id));
+
+  store.ingredients = [];
+  store.recipes = store.recipes.map((recipe) => ({
+    ...recipe,
+    lines: recipe.lines.filter((line) => !ingredientIds.has(line.ingredient_id)),
+  }));
+  store.expenses = store.expenses.map((expense) => ({
+    ...expense,
+    ingredient_id: null,
+  }));
+
+  await writeStore(store);
+  return {};
+}
+
 export async function localUpdateIngredientScale(
   id: string,
   unit_scale: number | null,
+  unit_scale_unit: IngredientScaleUnit | null,
 ): Promise<{ error?: string }> {
   const store = await readStore();
   const ingredient = store.ingredients.find((i) => i.id === id);
@@ -313,7 +370,26 @@ export async function localUpdateIngredientScale(
   }
 
   ingredient.unit_scale = unit_scale;
+  ingredient.unit_scale_unit = unit_scale_unit;
   ingredient.updated_at = new Date().toISOString();
+  await writeStore(store);
+  return {};
+}
+
+export async function localDeleteIngredient(id: string): Promise<{ error?: string }> {
+  const store = await readStore();
+  const ingredient = store.ingredients.find((i) => i.id === id);
+  if (!ingredient) return { error: "Insumo não encontrado" };
+
+  store.ingredients = store.ingredients.filter((i) => i.id !== id);
+  store.recipes = store.recipes.map((recipe) => ({
+    ...recipe,
+    lines: recipe.lines.filter((line) => line.ingredient_id !== id),
+  }));
+  store.expenses = store.expenses.map((expense) =>
+    expense.ingredient_id === id ? { ...expense, ingredient_id: null } : expense,
+  );
+
   await writeStore(store);
   return {};
 }
@@ -466,7 +542,6 @@ export async function localCreateExpense(input: {
 }): Promise<{ error?: string }> {
   const store = await readStore();
   const now = new Date().toISOString();
-  let ingredient_id: string | null = null;
   let quantity_purchased: number | null = null;
   let unit_cost: number | null = null;
 
@@ -481,23 +556,16 @@ export async function localCreateExpense(input: {
       return { error: "Informe a quantidade comprada" };
     }
     unit_cost = input.amount / input.quantity_purchased;
-    const ing = upsertIngredient(
-      store,
-      input.ingredient_name.trim(),
-      input.ingredient_unit,
-      unit_cost,
-    );
-    ingredient_id = ing.id;
     quantity_purchased = input.quantity_purchased;
   }
 
-  store.expenses.push({
+  const expense: Expense = {
     id: randomUUID(),
     type: input.type,
     description: input.description,
     amount: input.amount,
     occurred_at: input.occurred_at,
-    ingredient_id,
+    ingredient_id: null,
     ingredient_name:
       input.type === "insumo" ? input.ingredient_name?.trim() ?? null : null,
     ingredient_unit:
@@ -505,7 +573,50 @@ export async function localCreateExpense(input: {
     quantity_purchased,
     unit_cost,
     created_at: now,
-  });
+  };
+  store.expenses.push(expense);
+
+  if (input.type === "insumo" && input.ingredient_name && input.ingredient_unit) {
+    const ing = recalculateIngredientAverage(
+      store,
+      input.ingredient_name,
+      input.ingredient_unit,
+    );
+    expense.ingredient_id = ing.id;
+  }
+
+  await writeStore(store);
+  return {};
+}
+
+export async function localConvertExpenseToIngredient(
+  id: string,
+  input: {
+    ingredient_name: string;
+    ingredient_unit: MeasureUnit;
+    quantity_purchased: number;
+  },
+): Promise<{ error?: string }> {
+  const store = await readStore();
+  const expense = store.expenses.find((e) => e.id === id);
+  if (!expense) return { error: "Gasto não encontrado" };
+  if (!input.ingredient_name.trim()) return { error: "Informe o nome do insumo" };
+  if (!input.quantity_purchased || input.quantity_purchased <= 0) {
+    return { error: "Informe a quantidade comprada" };
+  }
+
+  expense.type = "insumo";
+  expense.ingredient_name = input.ingredient_name.trim();
+  expense.ingredient_unit = input.ingredient_unit;
+  expense.quantity_purchased = input.quantity_purchased;
+  expense.unit_cost = expense.amount / input.quantity_purchased;
+
+  const ingredient = recalculateIngredientAverage(
+    store,
+    expense.ingredient_name,
+    input.ingredient_unit,
+  );
+  expense.ingredient_id = ingredient.id;
 
   await writeStore(store);
   return {};

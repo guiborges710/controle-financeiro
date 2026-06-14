@@ -1,6 +1,7 @@
 import { deleteProductAction } from "@/app/actions/business";
 import { ProductForm } from "@/components/empresa/product-form";
 import { PageHeader } from "@/components/layout/page-header";
+import { PaginatedList } from "@/components/ui/paginated-list";
 import { getProducts, getRecipes } from "@/lib/data/business-repository";
 import { getSession } from "@/lib/auth/session";
 import { formatCurrency } from "@/lib/finance/calculations";
@@ -33,13 +34,25 @@ export default async function ProdutosPage() {
             Nenhum produto cadastrado.
           </p>
         ) : (
-          <ul className="divide-y divide-border-soft overflow-hidden rounded-2xl border border-border-soft bg-card shadow-sm">
+          <PaginatedList
+            as="ul"
+            className="divide-y divide-border-soft overflow-hidden rounded-2xl border border-border-soft bg-card shadow-sm"
+          >
             {products.map((p) => {
               const recipe = recipeMap.get(p.recipe_id);
               return (
                 <li key={p.id} className="flex items-center gap-3 px-4 py-3">
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium text-stone-900">{p.name}</p>
+                    <p
+                      className="font-medium text-stone-900"
+                      title={
+                        p.created_by_email
+                          ? `Criado/alterado por ${p.created_by_email}`
+                          : undefined
+                      }
+                    >
+                      {p.name}
+                    </p>
                     <p className="text-sm text-stone-500">
                       Tamanho: {p.size}
                       {recipe ? <> · Receita: {recipe.name}</> : null}
@@ -59,7 +72,7 @@ export default async function ProdutosPage() {
                 </li>
               );
             })}
-          </ul>
+          </PaginatedList>
         )}
       </section>
     </div>

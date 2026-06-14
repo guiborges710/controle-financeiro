@@ -4,6 +4,7 @@ import { getIngredients, getRecipes, getStocks } from "@/lib/data/business-repos
 import { getSession } from "@/lib/auth/session";
 import { formatCurrency } from "@/lib/finance/calculations";
 import { Card } from "@/components/ui/stat-card";
+import { PaginatedList } from "@/components/ui/paginated-list";
 
 export default async function EstoquePage() {
   const user = await getSession();
@@ -28,7 +29,7 @@ export default async function EstoquePage() {
         {stocks.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-border-soft bg-card p-8 text-center text-sm text-stone-500">Nenhuma produção registrada.</p>
         ) : (
-          <div className="space-y-4">
+          <PaginatedList className="space-y-4">
             {stocks.map((s) => (
               <Card key={s.id}>
                 <div className="flex items-center justify-between">
@@ -45,7 +46,7 @@ export default async function EstoquePage() {
                 </div>
               </Card>
             ))}
-          </div>
+          </PaginatedList>
         )}
       </section>
     </div>

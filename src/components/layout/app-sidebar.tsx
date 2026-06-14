@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   BookOpen,
   LayoutDashboard,
@@ -40,11 +40,14 @@ function NavLink({
   exact?: boolean;
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const active = exact ? pathname === href : pathname.startsWith(href);
+  const selectedMonth = searchParams.get("mes");
+  const targetHref = selectedMonth ? `${href}?mes=${selectedMonth}` : href;
 
   return (
     <Link
-      href={href}
+      href={targetHref}
       className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
         active
           ? "bg-sidebar-active text-sidebar-active-text shadow-sm"
@@ -57,9 +60,15 @@ function NavLink({
   );
 }
 
-export function AppSidebar({ email }: { email?: string | null }) {
-  const pathname = usePathname();
-  const inEmpresa = pathname.startsWith("/empresa");
+export function AppSidebar({
+  email,
+  projectName,
+  projectRole,
+}: {
+  email?: string | null;
+  projectName?: string | null;
+  projectRole?: "owner" | "editor" | "viewer";
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -136,6 +145,22 @@ export function AppSidebar({ email }: { email?: string | null }) {
 
           {email ? (
             <p className="truncate px-3 text-[11px] text-sidebar-muted">{email}</p>
+          ) : null}
+
+          {projectName ? (
+            <div className="rounded-xl border border-white/10 px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-sidebar-muted">
+                Projeto ativo
+              </p>
+              <p className="mt-1 truncate text-xs font-medium text-white">
+                {projectName}
+              </p>
+              {projectRole && projectRole !== "owner" ? (
+                <p className="mt-0.5 text-[11px] text-violet-200">
+                  Compartilhado como {projectRole === "editor" ? "editor" : "leitor"}
+                </p>
+              ) : null}
+            </div>
           ) : null}
 
           <form action="/auth/signout" method="post">

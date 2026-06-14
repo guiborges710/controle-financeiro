@@ -12,6 +12,7 @@ import { getProductsForRecipe } from "@/lib/finance/recipe-products";
 import { formatCurrency, formatPercent } from "@/lib/finance/calculations";
 import { unitLabel } from "@/lib/finance/recipe-cost";
 import { Card } from "@/components/ui/stat-card";
+import { PaginatedList } from "@/components/ui/paginated-list";
 import { Trash2 } from "lucide-react";
 
 export default async function ReceitasPage() {
@@ -40,13 +41,20 @@ export default async function ReceitasPage() {
             Nenhuma receita cadastrada.
           </p>
         ) : (
-          <div className="space-y-4">
+          <PaginatedList className="space-y-4">
             {recipes.map((recipe) => {
               const linkedProducts = getProductsForRecipe(recipe.id, products);
               const costBase = computeRecipeCost(recipe, ingredients, null);
 
               return (
-                <Card key={recipe.id}>
+                <Card
+                  key={recipe.id}
+                  title={
+                    recipe.created_by_email
+                      ? `Criado/alterado por ${recipe.created_by_email}`
+                      : undefined
+                  }
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="font-semibold text-stone-900">
@@ -117,7 +125,7 @@ export default async function ReceitasPage() {
                 </Card>
               );
             })}
-          </div>
+          </PaginatedList>
         )}
       </section>
     </div>

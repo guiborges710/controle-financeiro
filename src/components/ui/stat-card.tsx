@@ -1,15 +1,14 @@
 import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import type { ComponentPropsWithoutRef } from "react";
 
 export function Card({
   children,
   className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+  ...props
+}: ComponentPropsWithoutRef<"div">) {
   return (
     <div
+      {...props}
       className={`rounded-2xl border border-border-soft bg-card p-5 shadow-[0_1px_3px_rgba(42,24,69,0.06)] ${className}`}
     >
       {children}

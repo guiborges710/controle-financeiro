@@ -16,13 +16,12 @@ export async function inviteCollaborator(data: {
   const user = await getSession();
   if (!user) return { error: "Faça login para continuar" };
 
-  if (data.email === user.email) {
+  const invitedEmail = data.email.trim().toLowerCase();
+  if (invitedEmail === user.email.toLowerCase()) {
     return { error: "Não pode convidar você mesmo" };
   }
 
   const supabase = await createClient();
-
-  // Buscar business profile do usuário
   const { data: profile } = await supabase
     .from("business_profiles")
     .select("id")
@@ -33,10 +32,9 @@ export async function inviteCollaborator(data: {
     return { error: "Perfil empresarial não encontrado" };
   }
 
-  // Criar convite
   const { error } = await supabase.from("collaborators").insert({
     business_id: profile.id,
-    invited_email: data.email.toLowerCase(),
+    invited_email: invitedEmail,
     invited_by: user.id,
     role: data.role,
     status: "pending",
@@ -62,27 +60,9 @@ export async function acceptCollaboratorInvite(inviteId: string) {
   if (!user) return { error: "Faça login para continuar" };
 
   const supabase = await createClient();
-
-  // Verificar se o convite é para este usuário
-  const { data: invite } = await supabase
-    .from("collaborators")
-    .select("*")
-    .eq("id", inviteId)
-    .eq("invited_email", user.email)
-    .single();
-
-  if (!invite) {
-    return { error: "Convite não encontrado" };
-  }
-
-  // Aceitar convite
-  const { error } = await supabase
-    .from("collaborators")
-    .update({
-      status: "accepted",
-      accepted_at: new Date().toISOString(),
-    })
-    .eq("id", inviteId);
+  const { error } = await supabase.rpc("accept_collaborator_invite", {
+    invite_id: inviteId,
+  });
 
   if (error) return { error: error.message };
 
@@ -99,20 +79,17 @@ export async function rejectCollaboratorInvite(inviteId: string) {
   if (!user) return { error: "Faça login para continuar" };
 
   const supabase = await createClient();
-
-  // Verificar se o convite é para este usuário
   const { data: invite } = await supabase
     .from("collaborators")
     .select("*")
     .eq("id", inviteId)
-    .eq("invited_email", user.email)
+    .eq("invited_email", user.email.toLowerCase())
     .single();
 
   if (!invite) {
     return { error: "Convite não encontrado" };
   }
 
-  // Rejeitar convite
   const { error } = await supabase
     .from("collaborators")
     .delete()
@@ -133,8 +110,6 @@ export async function removeCollaborator(collaboratorId: string) {
   if (!user) return { error: "Faça login para continuar" };
 
   const supabase = await createClient();
-
-  // Verificar se o usuário é o dono
   const { data: collaborator } = await supabase
     .from("collaborators")
     .select("business_id")
