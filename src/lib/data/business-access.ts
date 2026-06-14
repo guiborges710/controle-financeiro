@@ -3,6 +3,7 @@ import "server-only";
 import { getSession } from "@/lib/auth/session";
 import { isLocalMode } from "@/lib/config/mode";
 import { createClient } from "@/lib/supabase/server";
+import { isMissingSchemaCacheRelationError } from "@/lib/supabase/errors";
 
 export type BusinessAccess = {
   businessId: string;
@@ -57,7 +58,7 @@ export async function getActiveBusinessAccess(): Promise<BusinessAccess | null> 
     };
   }
 
-  const { data: shared } = await supabase
+  const { data: shared, error: sharedError } = await supabase
     .from("collaborators")
     .select("role, business_profiles(id, user_id, business_name)")
     .eq("invited_email", user.email.toLowerCase())
@@ -65,6 +66,10 @@ export async function getActiveBusinessAccess(): Promise<BusinessAccess | null> 
     .order("accepted_at", { ascending: false })
     .limit(1)
     .maybeSingle<CollaboratorAccessRow>();
+
+  if (isMissingSchemaCacheRelationError(sharedError, "collaborators")) {
+    return null;
+  }
 
   const profile = normalizeProfile(shared?.business_profiles ?? null);
   if (!shared || !profile) return null;

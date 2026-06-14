@@ -9,6 +9,7 @@ import {
   localListTransactions,
 } from "@/lib/local/store";
 import { createClient } from "@/lib/supabase/server";
+import { isMissingSchemaCacheRelationError } from "@/lib/supabase/errors";
 import type { Transaction, Universe } from "@/lib/types";
 
 export async function listTransactions(
@@ -114,13 +115,20 @@ export async function ensureBusinessProfile(): Promise<void> {
     .maybeSingle();
 
   if (!existing) {
-    const { data: acceptedInvite } = await supabase
+    const { data: acceptedInvite, error: acceptedInviteError } = await supabase
       .from("collaborators")
       .select("id")
       .eq("invited_email", user.email.toLowerCase())
       .eq("status", "accepted")
       .limit(1)
       .maybeSingle();
+
+    if (
+      acceptedInviteError &&
+      !isMissingSchemaCacheRelationError(acceptedInviteError, "collaborators")
+    ) {
+      return;
+    }
 
     if (acceptedInvite) return;
 
