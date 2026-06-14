@@ -58,7 +58,6 @@ function createdBy(row: { created_by_email?: string | null }) {
 async function recalculateRemoteIngredientAverage(
   supabase: Awaited<ReturnType<typeof createClient>>,
   ownerId: string,
-  actor: { id: string; email: string },
   name: string,
   unit: MeasureUnit,
 ) {
@@ -97,8 +96,6 @@ async function recalculateRemoteIngredientAverage(
       .from("ingredients")
       .update({
         unit_cost: averageCost,
-        created_by: actor.id,
-        created_by_email: actor.email,
       })
       .eq("id", ingredientId);
     if (error) return { error: error.message };
@@ -107,8 +104,6 @@ async function recalculateRemoteIngredientAverage(
       .from("ingredients")
       .insert({
         user_id: ownerId,
-        created_by: actor.id,
-        created_by_email: actor.email,
         name: ingredientName,
         unit,
         unit_cost: averageCost,
@@ -175,8 +170,6 @@ export async function createIngredient(data: {
   const supabase = await createClient();
   const { error } = await supabase.from("ingredients").insert({
     user_id: editable.access.ownerId,
-    created_by: editable.user.id,
-    created_by_email: editable.user.email,
     name: data.name,
     unit: data.unit,
     unit_cost: data.unit_cost,
@@ -392,8 +385,6 @@ export async function createProduct(data: {
   const supabase = await createClient();
   const { error } = await supabase.from("products").insert({
     user_id: editable.access.ownerId,
-    created_by: editable.user.id,
-    created_by_email: editable.user.email,
     ...data,
   });
 
@@ -429,8 +420,6 @@ export async function createRecipe(data: {
     .from("recipes")
     .insert({
       user_id: editable.access.ownerId,
-      created_by: editable.user.id,
-      created_by_email: editable.user.email,
       name: data.name,
       yield_quantity: data.yield_quantity,
     })
@@ -496,8 +485,6 @@ export async function createSale(data: {
 
   const { error } = await supabase.from("sales").insert({
     user_id: editable.access.ownerId,
-    created_by: editable.user.id,
-    created_by_email: editable.user.email,
     product_id: data.product_id,
     description: data.description,
     quantity: data.quantity,
@@ -573,8 +560,6 @@ export async function createExpense(data: {
         .from("ingredients")
         .update({
           unit_cost,
-          created_by: editable.user.id,
-          created_by_email: editable.user.email,
         })
         .eq("id", ingredient_id);
     } else {
@@ -582,8 +567,6 @@ export async function createExpense(data: {
         .from("ingredients")
         .insert({
           user_id: editable.access.ownerId,
-          created_by: editable.user.id,
-          created_by_email: editable.user.email,
           name: data.ingredient_name.trim(),
           unit: data.ingredient_unit,
           unit_cost,
@@ -600,8 +583,6 @@ export async function createExpense(data: {
 
   const { error } = await supabase.from("expenses").insert({
     user_id: editable.access.ownerId,
-    created_by: editable.user.id,
-    created_by_email: editable.user.email,
     type: data.type,
     description: data.description,
     amount: data.amount,
@@ -623,7 +604,6 @@ export async function createExpense(data: {
     const averageResult = await recalculateRemoteIngredientAverage(
       supabase,
       editable.access.ownerId,
-      editable.user,
       data.ingredient_name,
       data.ingredient_unit,
     );
@@ -670,8 +650,6 @@ export async function convertExpenseToIngredient(
       ingredient_unit: data.ingredient_unit,
       quantity_purchased: data.quantity_purchased,
       unit_cost: unitCost,
-      created_by: editable.user.id,
-      created_by_email: editable.user.email,
     })
     .eq("id", id)
     .eq("user_id", editable.access.ownerId);
@@ -681,7 +659,6 @@ export async function convertExpenseToIngredient(
   const averageResult = await recalculateRemoteIngredientAverage(
     supabase,
     editable.access.ownerId,
-    editable.user,
     ingredientName,
     data.ingredient_unit,
   );
@@ -737,10 +714,18 @@ export async function updateIngredientScale(
     .update({
       unit_scale,
       unit_scale_unit,
-      created_by: editable.user.id,
-      created_by_email: editable.user.email,
     })
     .eq("id", id);
+
+  if (error && error.message.includes("unit_scale_unit")) {
+    const { error: fallbackError } = await supabase
+      .from("ingredients")
+      .update({ unit_scale })
+      .eq("id", id);
+
+    if (fallbackError) return { error: fallbackError.message };
+    return {};
+  }
 
   if (error) return { error: error.message };
   return {};
