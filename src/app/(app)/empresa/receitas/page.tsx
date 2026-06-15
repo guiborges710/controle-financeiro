@@ -34,10 +34,10 @@ export default async function ReceitasPage() {
 
       <RecipeForm ingredients={ingredients} />
 
-      <section className="space-y-3">
-        <h2 className="font-semibold text-stone-900">Receitas cadastradas</h2>
+      <section className="space-y-4">
+        <h2 className="ui-section-title">Receitas cadastradas</h2>
         {recipes.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border-soft bg-card p-8 text-center text-sm text-stone-500">
+          <p className="ui-empty text-sm font-medium">
             Nenhuma receita cadastrada.
           </p>
         ) : (

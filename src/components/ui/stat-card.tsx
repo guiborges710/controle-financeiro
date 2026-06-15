@@ -9,7 +9,7 @@ export function Card({
   return (
     <div
       {...props}
-      className={`rounded-2xl border border-border-soft bg-card p-5 shadow-[0_1px_3px_rgba(42,24,69,0.06)] ${className}`}
+      className={`ui-card p-5 ${className}`}
     >
       {children}
     </div>
@@ -17,11 +17,11 @@ export function Card({
 }
 
 export function btnPrimary(className = "") {
-  return `inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover disabled:opacity-60 ${className}`;
+  return `inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(124,58,237,0.24)] transition hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-[0_16px_30px_rgba(124,58,237,0.28)] disabled:pointer-events-none disabled:translate-y-0 disabled:opacity-60 ${className}`;
 }
 
 export function btnSecondary(className = "") {
-  return `inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-card px-4 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-accent-cream ${className}`;
+  return `inline-flex items-center justify-center gap-2 rounded-xl border border-border-soft bg-white px-4 py-2.5 text-sm font-semibold text-stone-700 shadow-sm transition hover:-translate-y-0.5 hover:border-violet-200 hover:bg-primary-light/40 hover:text-primary disabled:pointer-events-none disabled:opacity-60 ${className}`;
 }
 
 export type StatCardProps = {
@@ -33,10 +33,10 @@ export type StatCardProps = {
 };
 
 const toneStyles = {
-  purple: "bg-primary text-white",
-  violet: "bg-violet-100 text-violet-700",
-  rose: "bg-rose-100 text-rose-600",
-  stone: "bg-stone-100 text-stone-600",
+  purple: "bg-violet-100 text-violet-700 shadow-[0_10px_24px_rgba(124,58,237,0.14)]",
+  violet: "bg-primary-light text-primary shadow-[0_10px_24px_rgba(124,58,237,0.12)]",
+  rose: "bg-rose-100 text-rose-600 shadow-[0_10px_24px_rgba(244,63,94,0.12)]",
+  stone: "bg-emerald-100 text-emerald-600 shadow-[0_10px_24px_rgba(16,185,129,0.12)]",
 };
 
 export function StatCard({
@@ -47,22 +47,26 @@ export function StatCard({
   tone = "purple",
 }: StatCardProps) {
   return (
-    <Card className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-3">
+    <Card className="ui-card-hover min-h-[168px] p-6">
+      <div className="flex items-start gap-4">
         <div
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${toneStyles[tone]}`}
+          className={`flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl ${toneStyles[tone]}`}
         >
-          <Icon className="h-5 w-5" />
+          <Icon className="h-6 w-6" />
         </div>
-      </div>
-      <div>
-        <p className="text-sm font-medium text-stone-500">{label}</p>
-        <p className="mt-1 text-2xl font-semibold tracking-tight text-stone-900">
-          {value}
-        </p>
-        {sublabel ? (
-          <p className="mt-1 text-xs text-stone-500">{sublabel}</p>
-        ) : null}
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-wide text-stone-500">
+            {label}
+          </p>
+          <p className="mt-2 text-2xl font-bold tracking-tight text-stone-950">
+            {value}
+          </p>
+          {sublabel ? (
+            <p className="mt-3 text-xs text-stone-500">{sublabel}</p>
+          ) : (
+            <p className="mt-3 text-xs text-stone-400">-</p>
+          )}
+        </div>
       </div>
     </Card>
   );

@@ -49,13 +49,19 @@ function NavLink({
   return (
     <Link
       href={targetHref}
-      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+      className={`group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition ${
         active
-          ? "bg-sidebar-active text-sidebar-active-text shadow-sm"
-          : "text-sidebar-foreground/85 hover:bg-white/10 hover:text-white"
+          ? "bg-sidebar-active text-sidebar-active-text shadow-[0_14px_30px_rgba(124,58,237,0.32)]"
+          : "text-sidebar-foreground/82 hover:bg-white/10 hover:text-white"
       }`}
     >
-      <Icon className={`h-4 w-4 shrink-0 ${active ? "text-primary" : ""}`} />
+      <span
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition ${
+          active ? "bg-white/16 text-white" : "bg-white/5 text-sidebar-muted group-hover:bg-white/10 group-hover:text-white"
+        }`}
+      >
+        <Icon className="h-4 w-4" />
+      </span>
       {label}
     </Link>
   );
@@ -95,13 +101,13 @@ export function AppSidebar({
       ) : null}
 
       <aside
-        className={`sidebar-scroll fixed inset-y-0 left-0 z-40 flex w-72 flex-col bg-sidebar text-sidebar-foreground shadow-2xl transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:w-[260px] md:flex ${
+        className={`sidebar-scroll fixed inset-y-0 left-0 z-40 flex w-72 flex-col overflow-hidden bg-[radial-gradient(circle_at_20%_0%,rgba(124,58,237,0.42),transparent_18rem),linear-gradient(180deg,#24103d_0%,#160a2a_55%,#100720_100%)] text-sidebar-foreground shadow-2xl transition-transform duration-300 ease-in-out md:sticky md:top-0 md:translate-x-0 md:w-[272px] md:flex ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-6 py-6 md:px-6">
+        <div className="flex items-center justify-between border-b border-white/10 px-6 py-7 md:px-6">
           <div>
-            <p className="font-display text-2xl italic leading-none text-white">
+            <p className="font-display text-3xl italic leading-none text-white">
               Controle
             </p>
             <p className="mt-1 text-[10px] font-semibold tracking-[0.2em] text-sidebar-muted uppercase">
@@ -118,10 +124,10 @@ export function AppSidebar({
           </button>
         </div>
 
-        <nav className="flex-1 space-y-6 overflow-y-auto px-4 py-5">
+        <nav className="flex-1 space-y-6 overflow-y-auto px-4 py-6">
           <div>
             <p className="mb-2 px-3 text-[10px] font-semibold tracking-wider text-sidebar-muted uppercase">
-              Empresa
+              Menu
             </p>
             <div className="space-y-0.5">
               {empresaLinks.map((link) => (
@@ -133,8 +139,8 @@ export function AppSidebar({
 
         </nav>
 
-        <div className="space-y-3 border-t border-white/10 p-4">
-          <div className="rounded-xl bg-white/5 p-3">
+        <div className="space-y-4 border-t border-white/10 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/8 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
             <div className="flex items-start gap-2">
               <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
               <div>
@@ -147,17 +153,27 @@ export function AppSidebar({
           </div>
 
           {email ? (
-            <p className="truncate px-3 text-[11px] text-sidebar-muted">{email}</p>
+            <div className="flex items-center gap-3 px-1">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold text-primary">
+                {email.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-white">
+                  {email.split("@")[0]}
+                </p>
+                <p className="truncate text-[11px] text-sidebar-muted">{email}</p>
+              </div>
+            </div>
           ) : null}
 
           {email ? (
             <Link
               href="/empresa/projetos"
-              className="block rounded-xl border border-white/10 px-3 py-2 transition hover:bg-white/10"
+              className="block rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:bg-white/10"
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-sidebar-muted">
-                  Projetos e convites
+                <p className="text-[10px] font-bold uppercase tracking-wider text-sidebar-muted">
+                  Projeto ativo
                 </p>
                 {pendingInvitesCount > 0 ? (
                   <span className="rounded-full bg-violet-200 px-2 py-0.5 text-[10px] font-bold text-violet-950">
@@ -167,8 +183,8 @@ export function AppSidebar({
               </div>
               {projectName ? (
                 <>
-                  <p className="mt-1 truncate text-xs font-medium text-white">
-                    Ativo: {projectName}
+                  <p className="mt-1 truncate text-sm font-semibold text-white">
+                    {projectName}
                   </p>
                   {projectRole && projectRole !== "owner" ? (
                     <p className="mt-0.5 text-[11px] text-violet-200">
@@ -178,7 +194,7 @@ export function AppSidebar({
                   ) : null}
                 </>
               ) : (
-                <p className="mt-1 text-xs font-medium text-white">
+                <p className="mt-1 text-xs font-semibold text-white">
                   Ver convites recebidos
                 </p>
               )}
@@ -188,7 +204,7 @@ export function AppSidebar({
           <form action="/auth/signout" method="post">
             <button
               type="submit"
-              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-sidebar-muted transition hover:bg-white/10 hover:text-white"
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-muted transition hover:bg-white/10 hover:text-white"
             >
               <LogOut className="h-4 w-4" />
               Sair

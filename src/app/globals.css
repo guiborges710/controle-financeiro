@@ -1,20 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f3ed;
-  --foreground: #1c1917;
+  --background: #fbf8f3;
+  --foreground: #1f1a2e;
   --card: #ffffff;
-  --sidebar: #2a1845;
-  --sidebar-foreground: #f5f0ff;
-  --sidebar-muted: #a78bcc;
-  --sidebar-active: #ede4d8;
-  --sidebar-active-text: #2a1845;
-  --primary: #6d28d9;
-  --primary-hover: #5b21b6;
+  --sidebar: #180b2e;
+  --sidebar-foreground: #f8f4ff;
+  --sidebar-muted: #bda9df;
+  --sidebar-active: rgba(124, 58, 237, 0.9);
+  --sidebar-active-text: #ffffff;
+  --primary: #7c3aed;
+  --primary-hover: #6d28d9;
   --primary-light: #ede9fe;
   --primary-muted: #8b5cf6;
-  --accent-cream: #ede4d8;
-  --border-soft: #e7e0d5;
+  --accent-cream: #f4eee6;
+  --border-soft: #ebe3d7;
+  --shadow-soft: 0 18px 50px rgba(48, 30, 82, 0.08);
+  --shadow-card: 0 12px 34px rgba(48, 30, 82, 0.07);
 }
 
 @theme inline {
@@ -38,15 +40,135 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at top right, rgba(124, 58, 237, 0.08), transparent 30rem),
+    radial-gradient(circle at 45% -10%, rgba(253, 224, 71, 0.08), transparent 24rem),
+    var(--background);
   color: var(--foreground);
+  min-height: 100vh;
 }
 
-/* Scrollbar suave na sidebar */
+::selection {
+  background: rgba(124, 58, 237, 0.18);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  outline-color: var(--primary);
+}
+
+input,
+select,
+textarea {
+  background: #ffffff;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(124, 58, 237, 0.45);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+  outline: none;
+}
+
+button:focus-visible,
+a:focus-visible {
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.16);
+  outline: none;
+}
+
 .sidebar-scroll::-webkit-scrollbar {
   width: 4px;
 }
 .sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.22);
   border-radius: 999px;
+}
+
+.ui-card {
+  border: 1px solid var(--border-soft);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.94)),
+    #ffffff;
+  border-radius: 22px;
+  box-shadow: var(--shadow-card);
+}
+
+.ui-card-hover {
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.ui-card-hover:hover {
+  border-color: rgba(124, 58, 237, 0.22);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-1px);
+}
+
+.ui-empty {
+  display: grid;
+  place-items: center;
+  min-height: 132px;
+  border: 1px dashed rgba(124, 58, 237, 0.22);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at center top, rgba(124, 58, 237, 0.09), transparent 9rem),
+    rgba(255, 255, 255, 0.76);
+  color: #786f84;
+  text-align: center;
+  padding: 2rem;
+}
+
+.ui-section-title {
+  color: #20172f;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+form.rounded-2xl,
+form.ui-card,
+.space-y-4.rounded-2xl.border-border-soft.bg-card,
+.space-y-3.rounded-2xl.border-border-soft.bg-card {
+  box-shadow: var(--shadow-card);
+}
+
+input[class*="border-zinc-300"],
+select[class*="border-zinc-300"],
+textarea[class*="border-zinc-300"],
+input[class*="border-border-soft"],
+select[class*="border-border-soft"],
+textarea[class*="border-border-soft"] {
+  border-color: var(--border-soft);
+  border-radius: 0.875rem;
+  min-height: 2.65rem;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+button[class*="bg-primary"],
+button[class*="bg-sidebar"] {
+  box-shadow: 0 12px 24px rgba(124, 58, 237, 0.22);
+  font-weight: 650;
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+button[class*="bg-primary"]:hover,
+button[class*="bg-sidebar"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(124, 58, 237, 0.26);
+}
+
+button:disabled {
+  cursor: not-allowed;
 }

@@ -48,21 +48,21 @@ export default async function GastosPage({ searchParams }: Props) {
       <ExpenseFormPanel defaultDate={todayIsoDate()} />
       <ExpenseCsvImportForm />
 
-      <section className="space-y-3">
+      <section className="space-y-4">
         <h2 className="font-semibold text-stone-900">Gastos do mês</h2>
         {expenses.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border-soft bg-card p-8 text-center text-sm text-stone-500">
+          <p className="ui-empty text-sm font-medium">
             Nenhum gasto neste mês.
           </p>
         ) : (
           <PaginatedList
             as="ul"
-            className="divide-y divide-border-soft overflow-hidden rounded-2xl border border-border-soft bg-card shadow-sm"
+            className="ui-card divide-y divide-border-soft overflow-hidden"
           >
             {expenses.map((expense) => (
               <li
                 key={expense.id}
-                className="px-4 py-3"
+                className="px-5 py-4 transition hover:bg-primary-light/25"
                 title={
                   expense.created_by_email
                     ? `Criado/alterado por ${expense.created_by_email}`

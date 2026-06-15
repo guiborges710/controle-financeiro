@@ -3,6 +3,7 @@ import "server-only";
 import { randomUUID } from "crypto";
 import fs from "fs/promises";
 import path from "path";
+import { cache } from "react";
 import { LOCAL_DEMO_USER } from "@/lib/auth/constants";
 import type {
   Expense,
@@ -116,7 +117,7 @@ function normalizeStore(parsed: Partial<LocalStore>): LocalStore {
   return base;
 }
 
-async function readStore(): Promise<LocalStore> {
+const readStoreFromDisk = cache(async (): Promise<LocalStore> => {
   try {
     const raw = await fs.readFile(STORE_FILE, "utf-8");
     const parsed = JSON.parse(raw) as Partial<LocalStore>;
@@ -135,6 +136,10 @@ async function readStore(): Promise<LocalStore> {
     await writeStore(seeded);
     return seeded;
   }
+});
+
+async function readStore(): Promise<LocalStore> {
+  return structuredClone(await readStoreFromDisk());
 }
 
 async function writeStore(store: LocalStore): Promise<void> {

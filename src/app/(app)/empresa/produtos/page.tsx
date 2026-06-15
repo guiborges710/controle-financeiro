@@ -27,21 +27,24 @@ export default async function ProdutosPage() {
         recipeOptions={recipes.map((r) => ({ id: r.id, name: r.name }))}
       />
 
-      <section className="space-y-3">
+      <section className="space-y-4">
         <h2 className="font-semibold text-stone-900">Catálogo</h2>
         {products.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border-soft bg-card p-8 text-center text-sm text-stone-500">
+          <p className="ui-empty text-sm font-medium">
             Nenhum produto cadastrado.
           </p>
         ) : (
           <PaginatedList
             as="ul"
-            className="divide-y divide-border-soft overflow-hidden rounded-2xl border border-border-soft bg-card shadow-sm"
+            className="ui-card divide-y divide-border-soft overflow-hidden"
           >
             {products.map((p) => {
               const recipe = recipeMap.get(p.recipe_id);
               return (
-                <li key={p.id} className="flex items-center gap-3 px-4 py-3">
+                <li
+                  key={p.id}
+                  className="flex items-center gap-3 px-5 py-4 transition hover:bg-primary-light/25"
+                >
                   <div className="min-w-0 flex-1">
                     <p
                       className="font-medium text-stone-900"

@@ -41,7 +41,7 @@ function ProjectCard({
   const active = project.businessId === activeId;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border-soft bg-card p-4 shadow-sm">
+    <div className="ui-card ui-card-hover flex flex-wrap items-center justify-between gap-3 p-5">
       <div>
         <p className="font-medium text-stone-900">{project.businessName}</p>
         <p className="mt-1 text-sm text-stone-500">
@@ -58,7 +58,7 @@ function ProjectCard({
         <form action={selectActiveBusinessProject.bind(null, project.businessId)}>
           <button
             type="submit"
-            className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
+          className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(124,58,237,0.22)] transition hover:bg-primary-hover"
           >
             Usar projeto
           </button>
@@ -149,10 +149,10 @@ export default async function ProjetosPage() {
         </div>
       ) : null}
 
-      <section className="space-y-3">
+      <section className="space-y-4">
         <h2 className="font-semibold text-stone-900">Projetos disponíveis</h2>
         {projects.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border-soft bg-card p-8 text-center text-sm text-stone-500">
+          <p className="ui-empty text-sm font-medium">
             Nenhum projeto disponível.
           </p>
         ) : (
@@ -168,10 +168,10 @@ export default async function ProjetosPage() {
         )}
       </section>
 
-      <section className="space-y-3">
+      <section className="space-y-4">
         <h2 className="font-semibold text-stone-900">Convites recebidos</h2>
         {pendingInvites.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border-soft bg-card p-8 text-center text-sm text-stone-500">
+          <p className="ui-empty text-sm font-medium">
             Nenhum convite pendente.
           </p>
         ) : (
@@ -179,7 +179,7 @@ export default async function ProjetosPage() {
             {pendingInvites.map((invite) => (
               <div
                 key={invite.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border-soft bg-card p-4 shadow-sm"
+                className="ui-card flex flex-wrap items-center justify-between gap-3 p-5"
               >
                 <div>
                   <p className="font-medium text-stone-900">
@@ -193,7 +193,7 @@ export default async function ProjetosPage() {
                   <form action={acceptCollaboratorInviteAction.bind(null, invite.id)}>
                     <button
                       type="submit"
-                      className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
+                      className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(124,58,237,0.22)] transition hover:bg-primary-hover"
                     >
                       Aceitar
                     </button>
@@ -201,7 +201,7 @@ export default async function ProjetosPage() {
                   <form action={rejectCollaboratorInviteAction.bind(null, invite.id)}>
                     <button
                       type="submit"
-                      className="rounded-xl border border-border-soft px-4 py-2 text-sm font-medium text-stone-700 hover:bg-accent-cream"
+                      className="rounded-xl border border-border-soft bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:bg-primary-light"
                     >
                       Recusar
                     </button>

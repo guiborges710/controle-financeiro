@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { getSession } from "@/lib/auth/session";
 import { isLocalMode } from "@/lib/config/mode";
 import { createClient } from "@/lib/supabase/server";
@@ -32,7 +33,8 @@ function normalizeProfile(
   return Array.isArray(profile) ? profile[0] : profile;
 }
 
-export async function getActiveBusinessAccess(): Promise<BusinessAccess | null> {
+export const getActiveBusinessAccess = cache(
+async (): Promise<BusinessAccess | null> => {
   if (isLocalMode()) {
     return {
       businessId: "local",
@@ -99,14 +101,15 @@ export async function getActiveBusinessAccess(): Promise<BusinessAccess | null> 
     allAccesses[0] ??
     null
   );
-}
+},
+);
 
 export async function canEditActiveBusiness() {
   const access = await getActiveBusinessAccess();
   return access?.role === "owner" || access?.role === "editor";
 }
 
-export async function getPendingBusinessInviteCount(): Promise<number> {
+export const getPendingBusinessInviteCount = cache(async (): Promise<number> => {
   if (isLocalMode()) return 0;
 
   const user = await getSession();
@@ -123,4 +126,4 @@ export async function getPendingBusinessInviteCount(): Promise<number> {
   if (error) return 0;
 
   return count ?? 0;
-}
+});

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 
 type Props = {
   basePath: string;
@@ -19,20 +19,21 @@ export function MonthFilter({ basePath, yearMonth }: Props) {
   });
 
   return (
-    <div className="flex items-center gap-1 rounded-xl border border-border-soft bg-card p-1 shadow-sm">
+    <div className="flex items-center gap-1 rounded-xl border border-border-soft bg-white p-1.5 shadow-[0_10px_26px_rgba(48,30,82,0.08)]">
       <Link
         href={`${basePath}?mes=${fmt(prev)}`}
-        className="rounded-lg p-2 text-stone-500 transition hover:bg-accent-cream hover:text-stone-800"
+        className="rounded-lg p-2 text-stone-500 transition hover:bg-primary-light hover:text-primary"
         aria-label="Mês anterior"
       >
         <ChevronLeft className="h-4 w-4" />
       </Link>
-      <span className="min-w-[130px] px-2 text-center text-sm font-medium capitalize text-stone-800">
-        {label}
+      <span className="inline-flex min-w-[150px] items-center justify-center gap-2 px-2 text-center text-sm font-semibold capitalize text-stone-900">
+        <CalendarDays className="h-4 w-4 text-primary" />
+        <span>{label}</span>
       </span>
       <Link
         href={`${basePath}?mes=${fmt(next)}`}
-        className="rounded-lg p-2 text-stone-500 transition hover:bg-accent-cream hover:text-stone-800"
+        className="rounded-lg p-2 text-stone-500 transition hover:bg-primary-light hover:text-primary"
         aria-label="Próximo mês"
       >
         <ChevronRight className="h-4 w-4" />

@@ -25,8 +25,10 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           projectRole={access?.role}
           pendingInvitesCount={pendingInvitesCount}
         />
-        <div className="min-w-0 flex-1 overflow-auto bg-background">
-          <main className="mx-auto max-w-7xl px-6 py-8 lg:px-10">{children}</main>
+        <div className="min-w-0 flex-1 overflow-auto bg-transparent">
+          <main className="mx-auto max-w-[1360px] px-5 py-8 md:px-8 lg:px-10 xl:px-12">
+            {children}
+          </main>
         </div>
       </div>
     </div>

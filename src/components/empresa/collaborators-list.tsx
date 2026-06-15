@@ -31,8 +31,11 @@ export function CollaboratorsList({ collaborators }: { collaborators: Collaborat
 
   if (collaborators.length === 0) {
     return (
-      <div className="rounded-2xl border border-border-soft bg-card p-8 text-center">
-        <p className="text-sm text-stone-500">Nenhum colaborador ainda.</p>
+      <div className="ui-empty">
+        <p className="text-sm font-medium">
+          Nenhum colaborador ainda. Convide alguem para compartilhar este
+          projeto.
+        </p>
       </div>
     );
   }
@@ -42,7 +45,7 @@ export function CollaboratorsList({ collaborators }: { collaborators: Collaborat
       {collaborators.map((collab) => (
         <div
           key={collab.id}
-          className="flex items-center justify-between rounded-xl border border-border-soft bg-card p-4"
+          className="ui-card ui-card-hover flex items-center justify-between p-4"
         >
           <div className="flex-1">
             <div className="flex items-center gap-2">
@@ -72,7 +75,7 @@ export function CollaboratorsList({ collaborators }: { collaborators: Collaborat
           <button
             onClick={() => onDelete(collab.id)}
             disabled={deleting === collab.id}
-            className="ml-4 rounded-lg p-2 text-stone-500 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
+            className="ml-4 rounded-lg p-2 text-stone-500 transition hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
             aria-label="Remover colaborador"
           >
             <Trash2 className="h-4 w-4" />

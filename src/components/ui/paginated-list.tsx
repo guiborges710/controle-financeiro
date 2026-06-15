@@ -39,12 +39,12 @@ export function PaginatedList({
               type="button"
               onClick={() => setPage((current) => Math.max(1, current - 1))}
               disabled={currentPage === 1}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-soft px-3 py-1.5 font-medium text-stone-700 disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-soft bg-white px-3 py-1.5 font-semibold text-stone-700 shadow-sm transition hover:border-violet-200 hover:text-primary disabled:pointer-events-none disabled:opacity-50"
             >
               <ChevronLeft className="h-4 w-4" />
               Anterior
             </button>
-            <span className="font-medium text-stone-700">
+            <span className="rounded-lg bg-primary-light px-2.5 py-1 font-semibold text-primary">
               {currentPage}/{totalPages}
             </span>
             <button
@@ -53,7 +53,7 @@ export function PaginatedList({
                 setPage((current) => Math.min(totalPages, current + 1))
               }
               disabled={currentPage === totalPages}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-soft px-3 py-1.5 font-medium text-stone-700 disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-soft bg-white px-3 py-1.5 font-semibold text-stone-700 shadow-sm transition hover:border-violet-200 hover:text-primary disabled:pointer-events-none disabled:opacity-50"
             >
               Próxima
               <ChevronRight className="h-4 w-4" />

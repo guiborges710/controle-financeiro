@@ -36,28 +36,28 @@ export default async function VendasPage({ searchParams }: Props) {
 
       <SaleForm products={products} defaultDate={todayIsoDate()} />
 
-      <section className="space-y-3">
+      <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-stone-900">Vendas do mês</h2>
-          <p className="text-sm font-semibold text-primary">
+          <p className="rounded-full bg-primary-light px-3 py-1 text-sm font-bold text-primary">
             Total: {formatCurrency(total)}
           </p>
         </div>
         {sales.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border-soft bg-card p-8 text-center text-sm text-stone-500">
+          <p className="ui-empty text-sm font-medium">
             Nenhuma venda neste mês.
           </p>
         ) : (
           <PaginatedList
             as="ul"
-            className="divide-y divide-border-soft overflow-hidden rounded-2xl border border-border-soft bg-card shadow-sm"
+            className="ui-card divide-y divide-border-soft overflow-hidden"
           >
             {sales.map((s) => {
               const product = productMap.get(s.product_id);
               return (
                 <li
                   key={s.id}
-                  className="flex items-center gap-3 px-4 py-3"
+                  className="flex items-center gap-3 px-5 py-4 transition hover:bg-primary-light/25"
                   title={
                     s.created_by_email
                       ? `Criado/alterado por ${s.created_by_email}`

@@ -24,7 +24,7 @@ export default async function EstoquePage() {
 
       <StockForm recipes={recipes} ingredients={ingredients} />
 
-      <section className="space-y-3">
+      <section className="space-y-4">
         <h2 className="font-semibold text-stone-900">Produções registradas</h2>
         {stocks.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-border-soft bg-card p-8 text-center text-sm text-stone-500">Nenhuma produção registrada.</p>

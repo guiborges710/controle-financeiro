@@ -7,7 +7,7 @@ export type DataMode = "mock" | "production";
  *
  * A variável DATA_MODE ainda pode sobrescrever isso quando definida.
  */
-export const CODE_DATA_MODE: DataMode = "production";
+export const CODE_DATA_MODE: DataMode = "mock";
 
 export function getDataMode(): DataMode {
   const mode = process.env.DATA_MODE?.toLowerCase();

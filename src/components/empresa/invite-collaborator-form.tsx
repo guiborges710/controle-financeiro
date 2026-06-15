@@ -37,7 +37,7 @@ export function InviteCollaboratorForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-border-soft bg-card p-6">
+    <form onSubmit={onSubmit} className="ui-card space-y-4 p-6">
       <div className="flex items-center gap-2">
         <Users className="h-5 w-5 text-primary" />
         <h2 className="font-semibold text-stone-900">Convidar colaborador</h2>
@@ -90,7 +90,7 @@ export function InviteCollaboratorForm({
       <button
         type="submit"
         disabled={loading || !email}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-medium text-white hover:bg-primary-hover disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-semibold text-white shadow-[0_12px_24px_rgba(124,58,237,0.24)] transition hover:bg-primary-hover disabled:opacity-60"
       >
         <Send className="h-4 w-4" />
         {loading ? "Enviando…" : "Enviar convite"}
