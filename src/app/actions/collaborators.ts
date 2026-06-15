@@ -4,7 +4,9 @@ import { getSession } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { isLocalMode } from "@/lib/config/mode";
 import { isMissingSchemaCacheRelationError } from "@/lib/supabase/errors";
+import { ACTIVE_BUSINESS_COOKIE } from "@/lib/data/business-access";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 
 const COLLABORATORS_UNAVAILABLE =
   "Compartilhamento indisponível: aplique as migrations do Supabase para criar a tabela collaborators.";
@@ -67,6 +69,13 @@ export async function acceptCollaboratorInvite(inviteId: string) {
   if (!user) return { error: "Faça login para continuar" };
 
   const supabase = await createClient();
+  const { data: invite } = await supabase
+    .from("collaborators")
+    .select("business_id")
+    .eq("id", inviteId)
+    .eq("invited_email", user.email.toLowerCase())
+    .maybeSingle();
+
   const { error } = await supabase.rpc("accept_collaborator_invite", {
     invite_id: inviteId,
   });
@@ -78,8 +87,25 @@ export async function acceptCollaboratorInvite(inviteId: string) {
     return { error: error.message };
   }
 
+  if (invite?.business_id) {
+    (await cookies()).set(ACTIVE_BUSINESS_COOKIE, invite.business_id, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+    });
+  }
+
   revalidatePath("/empresa");
+  revalidatePath("/empresa/projetos");
   return {};
+}
+
+export async function acceptCollaboratorInviteAction(
+  inviteId: string,
+): Promise<void> {
+  const result = await acceptCollaboratorInvite(inviteId);
+  if (result.error) throw new Error(result.error);
 }
 
 export async function rejectCollaboratorInvite(inviteId: string) {
@@ -114,7 +140,15 @@ export async function rejectCollaboratorInvite(inviteId: string) {
   if (error) return { error: error.message };
 
   revalidatePath("/empresa");
+  revalidatePath("/empresa/projetos");
   return {};
+}
+
+export async function rejectCollaboratorInviteAction(
+  inviteId: string,
+): Promise<void> {
+  const result = await rejectCollaboratorInvite(inviteId);
+  if (result.error) throw new Error(result.error);
 }
 
 export async function removeCollaborator(collaboratorId: string) {

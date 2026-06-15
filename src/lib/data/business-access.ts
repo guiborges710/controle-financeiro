@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/session";
 import { isLocalMode } from "@/lib/config/mode";
 import { createClient } from "@/lib/supabase/server";
@@ -11,6 +12,8 @@ export type BusinessAccess = {
   businessName: string;
   role: "owner" | "editor" | "viewer";
 };
+
+export const ACTIVE_BUSINESS_COOKIE = "cf_active_business_id";
 
 type BusinessProfileRow = {
   id: string;
@@ -43,43 +46,59 @@ export async function getActiveBusinessAccess(): Promise<BusinessAccess | null> 
   if (!user) return null;
 
   const supabase = await createClient();
+  const selectedBusinessId = (await cookies()).get(ACTIVE_BUSINESS_COOKIE)?.value;
+
   const { data: owned } = await supabase
     .from("business_profiles")
     .select("id, user_id, business_name")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (owned) {
-    return {
+  const ownedAccess = owned
+    ? {
       businessId: owned.id,
       ownerId: owned.user_id,
       businessName: owned.business_name ?? "Projeto sem nome",
-      role: "owner",
-    };
-  }
+      role: "owner" as const,
+    }
+    : null;
 
-  const { data: shared, error: sharedError } = await supabase
+  const { data: sharedRows, error: sharedError } = await supabase
     .from("collaborators")
     .select("role, business_profiles(id, user_id, business_name)")
     .eq("invited_email", user.email.toLowerCase())
     .eq("status", "accepted")
     .order("accepted_at", { ascending: false })
-    .limit(1)
-    .maybeSingle<CollaboratorAccessRow>();
+    .returns<CollaboratorAccessRow[]>();
 
   if (isMissingSchemaCacheRelationError(sharedError, "collaborators")) {
-    return null;
+    return ownedAccess;
   }
 
-  const profile = normalizeProfile(shared?.business_profiles ?? null);
-  if (!shared || !profile) return null;
+  const sharedAccesses =
+    sharedRows
+      ?.map((shared) => {
+        const profile = normalizeProfile(shared.business_profiles);
+        if (!profile) return null;
+        const access: BusinessAccess = {
+          businessId: profile.id,
+          ownerId: profile.user_id,
+          businessName: profile.business_name ?? "Projeto sem nome",
+          role: shared.role,
+        };
+        return access;
+      })
+      .filter((access): access is BusinessAccess => access !== null) ?? [];
 
-  return {
-    businessId: profile.id,
-    ownerId: profile.user_id,
-    businessName: profile.business_name ?? "Projeto sem nome",
-    role: shared.role,
-  };
+  const allAccesses = [ownedAccess, ...sharedAccesses].filter(
+    (access): access is BusinessAccess => access !== null,
+  );
+
+  return (
+    allAccesses.find((access) => access.businessId === selectedBusinessId) ??
+    allAccesses[0] ??
+    null
+  );
 }
 
 export async function canEditActiveBusiness() {

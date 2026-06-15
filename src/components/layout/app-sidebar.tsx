@@ -148,7 +148,10 @@ export function AppSidebar({
           ) : null}
 
           {projectName ? (
-            <div className="rounded-xl border border-white/10 px-3 py-2">
+            <Link
+              href="/empresa/projetos"
+              className="block rounded-xl border border-white/10 px-3 py-2 transition hover:bg-white/10"
+            >
               <p className="text-[10px] font-semibold uppercase tracking-wider text-sidebar-muted">
                 Projeto ativo
               </p>
@@ -160,7 +163,7 @@ export function AppSidebar({
                   Compartilhado como {projectRole === "editor" ? "editor" : "leitor"}
                 </p>
               ) : null}
-            </div>
+            </Link>
           ) : null}
 
           <form action="/auth/signout" method="post">
