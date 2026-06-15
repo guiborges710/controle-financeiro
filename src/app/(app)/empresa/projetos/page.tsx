@@ -125,7 +125,7 @@ export default async function ProjetosPage() {
       if (row.status === "pending") {
         pendingInvites.push({
           id: row.id,
-          businessName: profile.business_name ?? "Projeto sem nome",
+          businessName: profile?.business_name ?? "Projeto compartilhado",
           role: row.role,
         });
       }
