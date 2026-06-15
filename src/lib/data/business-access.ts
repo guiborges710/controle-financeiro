@@ -105,3 +105,22 @@ export async function canEditActiveBusiness() {
   const access = await getActiveBusinessAccess();
   return access?.role === "owner" || access?.role === "editor";
 }
+
+export async function getPendingBusinessInviteCount(): Promise<number> {
+  if (isLocalMode()) return 0;
+
+  const user = await getSession();
+  if (!user) return 0;
+
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("collaborators")
+    .select("id", { count: "exact", head: true })
+    .eq("invited_email", user.email.toLowerCase())
+    .eq("status", "pending");
+
+  if (isMissingSchemaCacheRelationError(error, "collaborators")) return 0;
+  if (error) return 0;
+
+  return count ?? 0;
+}

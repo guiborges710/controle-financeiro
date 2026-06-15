@@ -23,6 +23,7 @@ const empresaLinks = [
   { href: "/empresa/gastos", label: "Gastos", icon: Receipt },
   { href: "/empresa/vendas", label: "Vendas", icon: ShoppingCart },
   { href: "/empresa/produtos", label: "Produtos", icon: Package },
+  { href: "/empresa/projetos", label: "Projetos e convites", icon: Users },
   { href: "/empresa/colaboradores", label: "Colaboradores", icon: Users },
 ] as const;
 
@@ -64,10 +65,12 @@ export function AppSidebar({
   email,
   projectName,
   projectRole,
+  pendingInvitesCount = 0,
 }: {
   email?: string | null;
   projectName?: string | null;
   projectRole?: "owner" | "editor" | "viewer";
+  pendingInvitesCount?: number;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -147,22 +150,38 @@ export function AppSidebar({
             <p className="truncate px-3 text-[11px] text-sidebar-muted">{email}</p>
           ) : null}
 
-          {projectName ? (
+          {email ? (
             <Link
               href="/empresa/projetos"
               className="block rounded-xl border border-white/10 px-3 py-2 transition hover:bg-white/10"
             >
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-sidebar-muted">
-                Projeto ativo
-              </p>
-              <p className="mt-1 truncate text-xs font-medium text-white">
-                {projectName}
-              </p>
-              {projectRole && projectRole !== "owner" ? (
-                <p className="mt-0.5 text-[11px] text-violet-200">
-                  Compartilhado como {projectRole === "editor" ? "editor" : "leitor"}
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-sidebar-muted">
+                  Projetos e convites
                 </p>
-              ) : null}
+                {pendingInvitesCount > 0 ? (
+                  <span className="rounded-full bg-violet-200 px-2 py-0.5 text-[10px] font-bold text-violet-950">
+                    {pendingInvitesCount}
+                  </span>
+                ) : null}
+              </div>
+              {projectName ? (
+                <>
+                  <p className="mt-1 truncate text-xs font-medium text-white">
+                    Ativo: {projectName}
+                  </p>
+                  {projectRole && projectRole !== "owner" ? (
+                    <p className="mt-0.5 text-[11px] text-violet-200">
+                      Compartilhado como{" "}
+                      {projectRole === "editor" ? "editor" : "leitor"}
+                    </p>
+                  ) : null}
+                </>
+              ) : (
+                <p className="mt-1 text-xs font-medium text-white">
+                  Ver convites recebidos
+                </p>
+              )}
             </Link>
           ) : null}
 
